@@ -95,13 +95,32 @@
     </div>
 
     <script type="text/javascript">
+        
+        // 🌟🌟🌟 التعديل هنا: تنفيذ أوامر تليجرام مباشرة 🌟🌟🌟
+        // هذا يضمن أن يتم توسيع التطبيق لملء الشاشة فور فتح الرابط في تليجرام.
+        if (window.Telegram && window.Telegram.WebApp) {
+            const WebApp = window.Telegram.WebApp;
+            
+            // التأكد من جاهزية الـ API
+            WebApp.ready(); 
+            
+            // أمر لتليجرام بتوسيع التطبيق لأقصى ارتفاع ممكن (لإخفاء الشريط السفلي)
+            WebApp.expand(); 
+            
+            // إخفاء زر العودة في الشريط العلوي (لإزالة أي عناصر تحكم أخرى)
+            WebApp.BackButton.hide();
+            
+            console.log("Telegram Web App expanded immediately upon load.");
+        }
+        // 🌟🌟🌟 نهاية التعديل 🌟🌟🌟
+
         document.getElementById('registerButton').addEventListener('click', handleRegister);
         
         const music = document.getElementById('background-music');
         const enterButton = document.getElementById('enterButton');
         const welcomeModal = document.getElementById('welcome-modal');
 
-        // دالة تشغيل الموسيقى وإخفاء النافذة المنبثقة والتحكم في واجهة تليجرام
+        // دالة تشغيل الموسيقى وإخفاء النافذة المنبثقة
         enterButton.addEventListener('click', function() {
             // محاولة تشغيل الموسيقى
             music.play().then(() => {
@@ -109,25 +128,6 @@
             }).catch(error => {
                 console.error("Error starting music:", error);
             });
-            
-            // 🚀 التحسين لتليجرام: إخفاء الأزرار السفلية
-            if (window.Telegram && window.Telegram.WebApp) {
-                const WebApp = window.Telegram.WebApp;
-                
-                // التأكد من جاهزية الـ API
-                WebApp.ready(); 
-                
-                // أمر لتليجرام بتوسيع التطبيق لأقصى ارتفاع ممكن (لإخفاء الشريط السفلي)
-                WebApp.expand(); 
-                
-                // إخفاء زر العودة إذا كان متوفراً في الشريط العلوي (اختياري)
-                WebApp.BackButton.hide();
-                
-                // يمكن أيضاً إخفاء زر الإغلاق إذا كان مرئياً بشكل افتراضي (لبعض الإعدادات)
-                // WebApp.CloseButton.hide(); 
-
-                console.log("Telegram Web App API commands executed (expand/hide buttons).");
-            }
 
             // إخفاء النافذة المنبثقة
             welcomeModal.style.opacity = '0';
