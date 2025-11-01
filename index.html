@@ -10,17 +10,14 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
     <style>
-        /* Apply a modern font */
+        /* (CSS code as before) */
         body {
             font-family: 'Inter', sans-serif;
             background-color: #000000;
         }
-        /* mobile-container سيتم تعيين ارتفاعه عبر JavaScript بوحدة البكسل */
         .mobile-container {
             box-sizing: border-box; 
-            /* height: 100vh; */
         }
-        /* Video styling for 1:1 aspect ratio */
         video {
             aspect-ratio: 1 / 1;
             width: 100%;
@@ -28,7 +25,6 @@
             object-fit: cover;
             border-radius: 1rem;
         }
-        /* Modal Backdrop Styling */
         .modal-overlay {
             background-color: rgba(0, 0, 0, 0.95);
         }
@@ -103,16 +99,15 @@
         const mobileContainer = document.querySelector('.mobile-container'); 
 
         // 🌟🌟🌟 أوامر تليجرام للتوسع وتعيين الارتفاع فوراً 🌟🌟🌟
-        // تنفيذها كأول خطوة يضمن أنها تعمل قبل أي شيء آخر
         if (window.Telegram && window.Telegram.WebApp) {
             const WebApp = window.Telegram.WebApp;
             
             WebApp.ready(); 
             
-            // 1. توسيع التطبيق لملء الشاشة (الأولوية القصوى)
+            // 1. توسيع التطبيق لملء الشاشة
             WebApp.expand(); 
             
-            // 2. إخفاء زر العودة في الشريط العلوي (الأولوية القصوى)
+            // 2. إخفاء زر العودة في الشريط العلوي
             WebApp.BackButton.hide();
             
             // 3. تعطيل السحب العمودي
@@ -120,7 +115,13 @@
                 WebApp.disableVerticalSwipes = true; 
             }
             
-            // 4. دالة تعيين الارتفاع بناءً على قيمة تليجرام الدقيقة
+            // 4. تفعيل إخفاء شريط العرض ( viewport ) عند التمرير (هذه أقوى دالة للتحكم في الأشرطة)
+            // هذه الدالة قد تحتاج لإصدار حديث من Telegram API
+            if (WebApp.setViewportHidingEnabled) {
+                WebApp.setViewportHidingEnabled(true);
+            }
+
+            // 5. دالة تعيين الارتفاع بناءً على قيمة تليجرام الدقيقة
             function setHeight() {
                 if (WebApp.viewportHeight > 0) {
                     mobileContainer.style.height = WebApp.viewportHeight + 'px';
@@ -130,20 +131,21 @@
             setHeight();
             WebApp.onEvent('viewportChanged', setHeight);
 
-            console.log("Telegram Web App commands executed: Expand and Height set.");
+            console.log("Telegram Web App commands executed: Expand, Hide Buttons, and Height set.");
         }
         // 🌟🌟🌟 نهاية أوامر تليجرام 🌟🌟🌟
 
         document.getElementById('registerButton').addEventListener('click', handleRegister);
         
-        // 🚀 وظيفة زر ENTER: تفاعل واحد لإزالة العنصر الحاجب وتشغيل الموسيقى
+        // وظيفة زر ENTER: تشغيل الموسيقى وإخفاء الـ Modal
         enterButton.addEventListener('click', function() {
-            // محاولة تشغيل الموسيقى (تفاعل مستخدم صريح)
-            music.play().catch(error => {
-                console.error("Error starting music:", error);
+            music.play().then(() => {
+                console.log("Music started successfully on ENTER click.");
+            }).catch(error => {
+                console.error("Error starting music on ENTER click:", error);
             });
 
-            // إخفاء النافذة المنبثقة بالكامل لإزالة أي حجب مرئي أو منطقي
+            // إخفاء النافذة المنبثقة
             welcomeModal.style.opacity = '0';
             setTimeout(() => {
                 welcomeModal.classList.add('hidden');
@@ -157,12 +159,7 @@
             const errorMsg = document.getElementById('error-message');
             const registerButton = document.getElementById('registerButton');
 
-            // 1. تشغيل الموسيقى (كخيار احتياطي، تفاعل المستخدم حدث بالفعل بالضغط على Register)
-            music.play().catch(error => {
-                console.error("Failed to ensure music is playing on Register click:", error);
-            });
-
-            // 2. Input Validation 
+            // 1. Input Validation 
             const regex = /^[a-zA-Z0-9]+$/; 
 
             if (username.length === 0) {
@@ -182,13 +179,10 @@
             registerButton.disabled = true; 
             registerButton.textContent = 'Processing...';
 
-            // 3. Save and Redirect
+            // 2. Save and Redirect
             try {
                 localStorage.setItem('registeredUsername', username);
-                // استخدام مهلة قصيرة لضمان تشغيل الموسيقى قبل الانتقال
-                setTimeout(() => {
-                    window.location.href = 'main.html';
-                }, 50);
+                window.location.href = 'main.html';
                 
             } catch (error) {
                 console.error("Error saving username to localStorage:", error);
