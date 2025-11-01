@@ -11,7 +11,6 @@
         body { 
             font-family: 'Inter', sans-serif; 
             background-color: #000000; /* خلفية سوداء بالكامل */
-            /* إلغاء التوسيط الكامل لل body لكي نتحكم بالتوسيط داخل الحاوية */
             display: block; 
             min-height: 100vh; 
         }
@@ -19,9 +18,9 @@
         /* حاوية جديدة لمحاكاة Mobile Container وتطبيق المسافة العلوية */
         .mobile-container {
             width: 100%;
-            padding: 1.5rem; /* padding: 1.5rem على جميع الجهات */
-            max-width: 30rem; /* نفس الحد الأقصى للحجم */
-            margin: 0 auto; /* التوسيط */
+            padding: 1.5rem; 
+            max-width: 30rem; 
+            margin: 0 auto; 
             padding-top: 4rem; /* مسافة علوية كبيرة لتجنب التداخل */
         }
 
@@ -31,7 +30,7 @@
             max-width: 360px;
             box-shadow: 0 5px 15px -5px rgba(0, 0, 0, 0.5); 
             transition: transform 0.3s ease-in-out;
-            margin-top: 2rem; /* مسافة بين الهيدر والبطاقة */
+            margin-top: 2rem; 
         }
         
         /* Like/Dislike button styling */
@@ -69,6 +68,8 @@
     </style>
 </head>
 <body class="bg-black antialiased"> 
+    
+    <audio id="bipSound" src="bip.mp3" preload="metadata"></audio>
 
     <div class="mobile-container">
         
@@ -100,21 +101,21 @@
                 <p class="text-gray-400 mb-6">Software Development Specialist</p>
                 
                 <div class="flex justify-center space-x-4 mb-6">
-                    <a href="https://www.facebook.com/share/1DhUCu7iTv/" class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center shadow-md">
+                    <a href="https://www.facebook.com/share/1DhUCu7iTv/" class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center shadow-md play-bip">
                         <img  src="facebook.png" alt="Facebook" class="w-10 h-10 rounded-full" onerror="this.style.display='none'; this.parentNode.innerHTML='<i data-lucide=\"facebook\" class=\"w-6 h-6 text-white\"></i>
                     </a>
                     
-                    <a href="https://discord.gg/6BXYJv9T" class="w-10 h-10 rounded-full bg-black flex items-center justify-center shadow-md">
+                    <a href="https://discord.gg/6BXYJv9T" class="w-10 h-10 rounded-full bg-black flex items-center justify-center shadow-md play-bip">
                         <img src="tiktok.png" alt="TikTok" class="w-10 h-10 rounded-full" onerror="this.style.display='none'; this.parentNode.innerHTML='<i data-lucide=\"mic\" class=\"w-6 h-6 text-white\"></i>
                     </a>
 
-                    <a href="https://youtube.com/@thirdweb_?si=6zeV0L8MjJlmNZ3G" class="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center shadow-md">
+                    <a href="https://youtube.com/@thirdweb_?si=6zeV0L8MjJlmNZ3G" class="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center shadow-md play-bip">
                         <img src="youtube.png" alt="YouTube" class="w-10 h-10 rounded-full" onerror="this.style.display='none'; this.parentNode.innerHTML='<i data-lucide=\"youtube\" class=\"w-6 h-6 text-white\"></i>
                     </a>
                 </div>
 
                 <div class="flex justify-center mb-2"> 
-                    <a href="https://t.me/ZhangHaoyu1921" target="_blank" class="w-full mx-4 py-3 bg-primary-color text-white font-semibold rounded-lg shadow-xl hover:bg-[#465827] transition duration-150 action-button">
+                    <a href="https://t.me/ZhangHaoyu1921" target="_blank" class="w-full mx-4 py-3 bg-primary-color text-white font-semibold rounded-lg shadow-xl hover:bg-[#465827] transition duration-150 action-button play-bip">
                         Message 
                     </a>
                 </div>
@@ -150,8 +151,20 @@
 
             </div>
         </div>
-        </div>
+    </div>
     <script>
+        // ------------------ دالة تشغيل صوت النقر العادي (bip.mp3) ------------------
+        function playBipSound() {
+            const bip = document.getElementById('bipSound');
+            if (bip) {
+                bip.currentTime = 0; // إعادة الصوت للبداية للتشغيل المتكرر السريع
+                bip.play().catch(error => {
+                    // console.log("Audio playback blocked:", error); 
+                });
+            }
+        }
+        // ------------------ نهاية دالة الصوت ------------------
+
         // القيم الأولية الثابتة
         const INITIAL_DISLIKES = 62;
         const INITIAL_LIKES = 21627;
@@ -190,19 +203,26 @@
         const dislikeBtn = document.getElementById('dislike-btn');
         const backButton = document.getElementById('backButton'); 
         
-        // ⬅️ إضافة معالج حدث زر الرجوع
-        backButton.addEventListener('click', () => {
-            // توجيه المستخدم إلى main.html كما طلبت
-            window.location.href = 'main.html';
+        // 🔊 معالج حدث زر الرجوع (يتضمن تشغيل الصوت)
+        backButton.addEventListener('click', (event) => {
+            playBipSound();
+            // تأخير بسيط لمنح الصوت فرصة للتشغيل
+            setTimeout(() => {
+                 window.location.href = 'main.html';
+            }, 50); 
+            event.preventDefault(); // منع الانتقال الفوري لإتاحة تشغيل الصوت
         });
-
+        
+        // 🔊 إضافة معالجات الصوت للأزرار الأخرى غير (Like/Dislike)
+        document.querySelectorAll('.play-bip').forEach(element => {
+            element.addEventListener('click', playBipSound);
+        });
+        
         // --- منطق تحميل الأرقام العشوائية وتخزينها عند كل زيارة ---
         
-        // قراءة أو استخدام القيمة الأساسية (base) للإعجابات والمتواصلين
         let baseLikes = parseInt(localStorage.getItem('baseLikes')) || INITIAL_LIKES;
         let baseContacts = parseInt(localStorage.getItem('baseContacts')) || INITIAL_CONTACTS;
         
-        // تطبيق الزيادة العشوائية وحفظ القيمة الأساسية الجديدة
         baseLikes += getRandomInt(10, 100);
         baseContacts += getRandomInt(30, 200);
         localStorage.setItem('baseLikes', baseLikes);
@@ -212,41 +232,33 @@
         
         // --- منطق حفظ واستعادة تفاعل المستخدم ---
         
-        // قراءة حالة تفاعل المستخدم المحفوظة
         let hasLiked = localStorage.getItem('userHasLiked') === 'true';
         let hasDisliked = localStorage.getItem('userHasDisliked') === 'true';
         
-        // تحديد الأرقام التي ستُعرض: القيمة الأساسية + تفاعل المستخدم (إذا كان موجوداً)
         let currentLikes = baseLikes + (hasLiked ? 1 : 0);
         let currentDislikes = INITIAL_DISLIKES + (hasDisliked ? 1 : 0);
         
-        // دالة لتنسيق الأرقام بفاصلة للآلاف
         function formatNumberWithCommas(number) {
             return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
 
-        // تحديد الأنماط الافتراضية لأزرار الإعجاب وعدم الإعجاب في الوضع الليلي
         const LIKE_DEFAULT_CLASSES = 'text-gray-400 hover:bg-gray-700 hover:text-green-400';
         const DISLIKE_DEFAULT_CLASSES = 'text-gray-400 hover:bg-gray-700 hover:text-red-400';
 
-        // دالة لتحديث واجهة المستخدم
         function updateUI() {
-            // تحديث عدادات الإعجاب وعدم الإعجاب
             likesCountEl.textContent = formatNumberWithCommas(currentLikes);
             dislikesCountEl.textContent = currentDislikes.toString();
-            contactsCountEl.textContent = formatNumberWithCommas(baseContacts); // لا يتأثر بتفاعل المستخدم
+            contactsCountEl.textContent = formatNumberWithCommas(baseContacts); 
 
             
-            // تحديث تصميم زر الإعجاب
-            likeBtn.classList.remove('liked', LIKE_DEFAULT_CLASSES);
+            likeBtn.classList.remove('liked', ...LIKE_DEFAULT_CLASSES.split(' '));
             if (hasLiked) {
                 likeBtn.classList.add('liked');
             } else {
                 likeBtn.classList.add(...LIKE_DEFAULT_CLASSES.split(' '));
             }
 
-            // تحديث تصميم زر عدم الإعجاب
-            dislikeBtn.classList.remove('disliked', DISLIKE_DEFAULT_CLASSES);
+            dislikeBtn.classList.remove('disliked', ...DISLIKE_DEFAULT_CLASSES.split(' '));
             if (hasDisliked) {
                 dislikeBtn.classList.add('disliked');
             } else {
@@ -254,44 +266,40 @@
             }
         }
 
-        // معالج حدث الإعجاب
+        // 🔊 معالج حدث الإعجاب (يتضمن تشغيل الصوت)
         likeBtn.addEventListener('click', () => {
+            playBipSound();
             if (hasDisliked) {
-                // منع التفاعل إذا كان عدم الإعجاب مُفعلاً
                 return;
             }
 
             if (hasLiked) {
-                // إزالة الإعجاب
                 currentLikes--;
                 hasLiked = false;
-                localStorage.setItem('userHasLiked', 'false'); // حفظ الحالة
+                localStorage.setItem('userHasLiked', 'false'); 
             } else {
-                // إضافة إعجاب
                 currentLikes++;
                 hasLiked = true;
-                localStorage.setItem('userHasLiked', 'true'); // حفظ الحالة
+                localStorage.setItem('userHasLiked', 'true'); 
             }
             updateUI();
         });
 
-        // معالج حدث عدم الإعجاب
+        // 🔊 معالج حدث عدم الإعجاب (يتضمن تشغيل الصوت)
         dislikeBtn.addEventListener('click', () => {
+            playBipSound();
             if (hasLiked) {
-                // منع التفاعل إذا كان الإعجاب مُفعلاً
                 return;
             }
 
             if (hasDisliked) {
-                // إزالة عدم الإعجاب
                 currentDislikes--;
                 hasDisliked = false;
-                localStorage.setItem('userHasDisliked', 'false'); // حفظ الحالة
+                localStorage.setItem('userHasDisliked', 'false'); 
             } else {
-                // إضافة عدم إعجاب
                 currentDislikes++;
                 hasDisliked = true;
-                localStorage.setItem('userHasDisliked', 'true'); // حفظ الحالة
+                localStorage.setItem('userHasDisliked', 'true'); 
             }
             updateUI();
         });
