@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Profile Card (Dark Mode)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Default "Inter" font for aesthetics */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #000000; /* خلفية سوداء بالكامل */
+            /* إلغاء التوسيط الكامل لل body لكي نتحكم بالتوسيط داخل الحاوية */
+            display: block; 
+            min-height: 100vh; 
+        }
+        
+        /* حاوية جديدة لمحاكاة Mobile Container وتطبيق المسافة العلوية */
+        .mobile-container {
+            width: 100%;
+            padding: 1.5rem; /* padding: 1.5rem على جميع الجهات */
+            max-width: 30rem; /* نفس الحد الأقصى للحجم */
+            margin: 0 auto; /* التوسيط */
+            padding-top: 4rem; /* مسافة علوية كبيرة لتجنب التداخل */
+        }
+
+        /* Card design for mobile responsiveness and centering */
+        .profile-card {
+            width: 100%;
+            max-width: 360px;
+            box-shadow: 0 5px 15px -5px rgba(0, 0, 0, 0.5); 
+            transition: transform 0.3s ease-in-out;
+            margin-top: 2rem; /* مسافة بين الهيدر والبطاقة */
+        }
+        
+        /* Like/Dislike button styling */
+        .action-button {
+            transition: all 0.2s;
+        }
+        .action-button:hover {
+            transform: scale(1.05);
+        }
+        
+        /* أسلوب الإعجاب وعدم الإعجاب بعد التفعيل - لون الخلفية هو الزيتوني الداكن */
+        .liked, .disliked {
+            background-color: var(--primary-color) !important; 
+            color: white !important;
+            border-color: var(--primary-color) !important; 
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        // اللون الأساسي (الزيتوني الداكن)
+                        'primary-color': '#556B2F', 
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* تعريف متغير CSS لاستخدامه في الأنماط المضمنة وغير Tailwind */
+        :root {
+            --primary-color: #556B2F; /* لون الزيتوني الداكن */
+        }
+    </style>
+</head>
+<body class="bg-black antialiased"> 
+
+    <div class="mobile-container">
+        
+        <header class="w-full flex justify-between items-center mb-4">
+            
+            <button id="backButton" 
+                    class="text-neutral-400 hover:text-white transition duration-150 flex items-center p-1 -ml-1">
+                <svg class="w-6 h-6 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                <span class="font-medium">Back</span>
+            </button>
+            
+            <p id="uniqueIDDisplay" class="text-sm font-semibold text-neutral-500 text-right p-1">ID: LOADING...</p>
+        </header>
+        <div id="profile-card" class="profile-card bg-gray-900 rounded-xl overflow-hidden text-center mx-auto">
+            
+            <div class="bg-gray-800 h-32 relative">
+                <div class="absolute inset-x-0 top-12 flex justify-center">
+                    <div class="w-32 h-32 rounded-full p-1 bg-gray-900 border-2 border-primary-color shadow-lg">
+                        <img id="profil-img" src="profil.png" 
+                             alt="Profile Image" 
+                             onerror="this.src='https://placehold.co/120x120/1d4ed8/ffffff/png?text=Profil';"
+                             class="rounded-full w-full h-full object-cover border-2 border-gray-900">
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-20 pb-6 px-4">
+                <h1 class="text-2xl font-bold text-white">浩宇 张</h1>
+                <p class="text-gray-400 mb-6">Software Development Specialist</p>
+                
+                <div class="flex justify-center space-x-4 mb-6">
+                    <a href="https://www.facebook.com/share/1DhUCu7iTv/" class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center shadow-md">
+                        <img  src="facebook.png" alt="Facebook" class="w-10 h-10 rounded-full" onerror="this.style.display='none'; this.parentNode.innerHTML='<i data-lucide=\"facebook\" class=\"w-6 h-6 text-white\"></i>
+                    </a>
+                    
+                    <a href="https://discord.gg/6BXYJv9T" class="w-10 h-10 rounded-full bg-black flex items-center justify-center shadow-md">
+                        <img src="tiktok.png" alt="TikTok" class="w-10 h-10 rounded-full" onerror="this.style.display='none'; this.parentNode.innerHTML='<i data-lucide=\"mic\" class=\"w-6 h-6 text-white\"></i>
+                    </a>
+
+                    <a href="https://youtube.com/@thirdweb_?si=6zeV0L8MjJlmNZ3G" class="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center shadow-md">
+                        <img src="youtube.png" alt="YouTube" class="w-10 h-10 rounded-full" onerror="this.style.display='none'; this.parentNode.innerHTML='<i data-lucide=\"youtube\" class=\"w-6 h-6 text-white\"></i>
+                    </a>
+                </div>
+
+                <div class="flex justify-center mb-2"> 
+                    <a href="https://t.me/ZhangHaoyu1921" target="_blank" class="w-full mx-4 py-3 bg-primary-color text-white font-semibold rounded-lg shadow-xl hover:bg-[#465827] transition duration-150 action-button">
+                        Message 
+                    </a>
+                </div>
+
+                <div class="mb-8 px-4">
+                    <p class="text-sm text-gray-400 font-medium">
+                        Contacts: 
+                        <span id="contacts-count" class="text-primary-color font-bold text-lg">528,263</span> 
+                        Reached
+                    </p>
+                </div>
+                
+                <div class="flex justify-around items-center border-t border-gray-700 pt-4">
+                    
+                    <div class="text-center flex flex-col items-center">
+                        <button id="like-btn" class="action-button flex items-center justify-center p-2 rounded-full border border-gray-600 text-gray-400 hover:bg-gray-700 hover:text-green-400">
+                            <i data-lucide="heart" class="w-5 h-5"></i>
+                        </button>
+                        <span id="likes-count" class="mt-2 text-lg font-bold text-white">21627</span>
+                        <span class="text-xs text-gray-400">Likes</span>
+                    </div>
+                    
+                    <div class="w-px h-12 bg-gray-700"></div>
+
+                    <div class="text-center flex flex-col items-center">
+                        <button id="dislike-btn" class="action-button flex items-center justify-center p-2 rounded-full border border-gray-600 text-gray-400 hover:bg-gray-700 hover:text-red-400">
+                            <i data-lucide="thumbs-down" class="w-5 h-5"></i>
+                        </button>
+                        <span id="dislikes-count" class="mt-2 text-lg font-bold text-white">62</span>
+                        <span class="text-xs text-gray-400">Dislikes</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        </div>
+    <script>
+        // القيم الأولية الثابتة
+        const INITIAL_DISLIKES = 62;
+        const INITIAL_LIKES = 21627;
+        const INITIAL_CONTACTS = 528263;
+
+        // دالة لتوليد رقم عشوائي ضمن نطاق معين (شامل للحدين)
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+        
+        // ------------------ منطق توليد وحفظ ID المستخدم ------------------
+        function generateUniqueID() {
+            let id = '';
+            for (let i = 0; i < 10; i++) {
+                id += Math.floor(Math.random() * 10);
+            }
+            return id;
+        }
+
+        const idDisplayElement = document.getElementById('uniqueIDDisplay');
+        let uniqueID = localStorage.getItem('userAppID');
+
+        if (!uniqueID) {
+            uniqueID = generateUniqueID();
+            localStorage.setItem('userAppID', uniqueID);
+        }
+
+        idDisplayElement.textContent = `ID: ${uniqueID}`;
+        // ------------------ نهاية منطق ID المستخدم ------------------
+
+        // العناصر
+        const likesCountEl = document.getElementById('likes-count');
+        const dislikesCountEl = document.getElementById('dislikes-count');
+        const contactsCountEl = document.getElementById('contacts-count');
+        const likeBtn = document.getElementById('like-btn');
+        const dislikeBtn = document.getElementById('dislike-btn');
+        const backButton = document.getElementById('backButton'); 
+        
+        // ⬅️ إضافة معالج حدث زر الرجوع
+        backButton.addEventListener('click', () => {
+            // توجيه المستخدم إلى main.html كما طلبت
+            window.location.href = 'main.html';
+        });
+
+        // --- منطق تحميل الأرقام العشوائية وتخزينها عند كل زيارة ---
+        
+        // قراءة أو استخدام القيمة الأساسية (base) للإعجابات والمتواصلين
+        let baseLikes = parseInt(localStorage.getItem('baseLikes')) || INITIAL_LIKES;
+        let baseContacts = parseInt(localStorage.getItem('baseContacts')) || INITIAL_CONTACTS;
+        
+        // تطبيق الزيادة العشوائية وحفظ القيمة الأساسية الجديدة
+        baseLikes += getRandomInt(10, 100);
+        baseContacts += getRandomInt(30, 200);
+        localStorage.setItem('baseLikes', baseLikes);
+        localStorage.setItem('baseContacts', baseContacts);
+
+        // --- نهاية منطق الأرقام العشوائية ---
+        
+        // --- منطق حفظ واستعادة تفاعل المستخدم ---
+        
+        // قراءة حالة تفاعل المستخدم المحفوظة
+        let hasLiked = localStorage.getItem('userHasLiked') === 'true';
+        let hasDisliked = localStorage.getItem('userHasDisliked') === 'true';
+        
+        // تحديد الأرقام التي ستُعرض: القيمة الأساسية + تفاعل المستخدم (إذا كان موجوداً)
+        let currentLikes = baseLikes + (hasLiked ? 1 : 0);
+        let currentDislikes = INITIAL_DISLIKES + (hasDisliked ? 1 : 0);
+        
+        // دالة لتنسيق الأرقام بفاصلة للآلاف
+        function formatNumberWithCommas(number) {
+            return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        // تحديد الأنماط الافتراضية لأزرار الإعجاب وعدم الإعجاب في الوضع الليلي
+        const LIKE_DEFAULT_CLASSES = 'text-gray-400 hover:bg-gray-700 hover:text-green-400';
+        const DISLIKE_DEFAULT_CLASSES = 'text-gray-400 hover:bg-gray-700 hover:text-red-400';
+
+        // دالة لتحديث واجهة المستخدم
+        function updateUI() {
+            // تحديث عدادات الإعجاب وعدم الإعجاب
+            likesCountEl.textContent = formatNumberWithCommas(currentLikes);
+            dislikesCountEl.textContent = currentDislikes.toString();
+            contactsCountEl.textContent = formatNumberWithCommas(baseContacts); // لا يتأثر بتفاعل المستخدم
+
+            
+            // تحديث تصميم زر الإعجاب
+            likeBtn.classList.remove('liked', LIKE_DEFAULT_CLASSES);
+            if (hasLiked) {
+                likeBtn.classList.add('liked');
+            } else {
+                likeBtn.classList.add(...LIKE_DEFAULT_CLASSES.split(' '));
+            }
+
+            // تحديث تصميم زر عدم الإعجاب
+            dislikeBtn.classList.remove('disliked', DISLIKE_DEFAULT_CLASSES);
+            if (hasDisliked) {
+                dislikeBtn.classList.add('disliked');
+            } else {
+                dislikeBtn.classList.add(...DISLIKE_DEFAULT_CLASSES.split(' '));
+            }
+        }
+
+        // معالج حدث الإعجاب
+        likeBtn.addEventListener('click', () => {
+            if (hasDisliked) {
+                // منع التفاعل إذا كان عدم الإعجاب مُفعلاً
+                return;
+            }
+
+            if (hasLiked) {
+                // إزالة الإعجاب
+                currentLikes--;
+                hasLiked = false;
+                localStorage.setItem('userHasLiked', 'false'); // حفظ الحالة
+            } else {
+                // إضافة إعجاب
+                currentLikes++;
+                hasLiked = true;
+                localStorage.setItem('userHasLiked', 'true'); // حفظ الحالة
+            }
+            updateUI();
+        });
+
+        // معالج حدث عدم الإعجاب
+        dislikeBtn.addEventListener('click', () => {
+            if (hasLiked) {
+                // منع التفاعل إذا كان الإعجاب مُفعلاً
+                return;
+            }
+
+            if (hasDisliked) {
+                // إزالة عدم الإعجاب
+                currentDislikes--;
+                hasDisliked = false;
+                localStorage.setItem('userHasDisliked', 'false'); // حفظ الحالة
+            } else {
+                // إضافة عدم إعجاب
+                currentDislikes++;
+                hasDisliked = true;
+                localStorage.setItem('userHasDisliked', 'true'); // حفظ الحالة
+            }
+            updateUI();
+        });
+        
+        // استدعاء لتثبيت الأيقونات وتحديث الواجهة عند التحميل
+        window.onload = () => {
+            lucide.createIcons();
+            updateUI();
+        };
+
+    </script>
+</body>
+</html>
