@@ -10,15 +10,17 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
     <style>
-        /* (الكود CSS بدون تغيير) */
+        /* Apply a modern font */
         body {
             font-family: 'Inter', sans-serif;
             background-color: #000000;
         }
+        /* mobile-container سيتم تعيين ارتفاعه عبر JavaScript بوحدة البكسل */
         .mobile-container {
-            height: 100vh;
             box-sizing: border-box; 
+            /* ⚠️ تم إزالة height: 100vh ليتوافق مع WebApp.viewportHeight */
         }
+        /* Video styling for 1:1 aspect ratio */
         video {
             aspect-ratio: 1 / 1;
             width: 100%;
@@ -26,12 +28,9 @@
             object-fit: cover;
             border-radius: 1rem;
         }
+        /* Modal Backdrop Styling */
         .modal-overlay {
             background-color: rgba(0, 0, 0, 0.95);
-        }
-        /* إخفاء الـ modal بشكل افتراضي (سنستخدم JS لإظهاره/إخفائه) */
-        .hidden-on-load {
-            display: none !important; 
         }
     </style>
 </head>
@@ -59,6 +58,7 @@
     <div class="mobile-container flex flex-col items-center justify-between p-6 md:p-12 max-w-sm mx-auto">
         
         <div class="flex flex-col items-center w-full my-auto">
+            
             <div class="w-full max-w-xs mb-8 overflow-hidden rounded-2xl shadow-xl shadow-fuchsia-900/10">
                 <video id="spaceVideo" autoplay loop muted playsinline poster="https://placehold.co/300x300/18181b/ffffff?text=Video+Loading+..." class="w-full h-auto">
                     <source src="space.mp4" type="video/mp4">
@@ -100,8 +100,10 @@
         const music = document.getElementById('background-music');
         const enterButton = document.getElementById('enterButton');
         const welcomeModal = document.getElementById('welcome-modal');
+        // تحديد الحاوية الرئيسية
+        const mobileContainer = document.querySelector('.mobile-container'); 
 
-        // 🌟🌟🌟 التعديل الأساسي: تنفيذ التوسع والإخفاء عند التحميل 🌟🌟🌟
+        // 🌟🌟🌟 أوامر تليجرام للتوسع وتعيين الارتفاع عند التحميل 🌟🌟🌟
         if (window.Telegram && window.Telegram.WebApp) {
             const WebApp = window.Telegram.WebApp;
             
@@ -118,7 +120,21 @@
                 WebApp.disableVerticalSwipes = true; 
             }
             
-            console.log("Telegram Web App expanded immediately upon load.");
+            // 4. دالة تعيين الارتفاع بناءً على ارتفاع منفذ العرض لتليجرام
+            function setHeight() {
+                // التأكد من أن القيمة صالحة
+                if (WebApp.viewportHeight > 0) {
+                    mobileContainer.style.height = WebApp.viewportHeight + 'px';
+                }
+            }
+            
+            // تعيين الارتفاع فوراً عند التحميل
+            setHeight();
+            
+            // تعيين الارتفاع عند تغيير حجم المنفذ (عندما تختفي الأزرار أو تظهر لوحة المفاتيح)
+            WebApp.onEvent('viewportChanged', setHeight);
+
+            console.log("Telegram Web App commands executed: Expand and Height set.");
         }
         // 🌟🌟🌟 نهاية أوامر تليجرام 🌟🌟🌟
 
@@ -137,16 +153,6 @@
                 welcomeModal.classList.add('hidden');
             }, 300);
         });
-
-        // إذا كان هناك شك في عرض الـ Modal، قم بإخفائه تلقائياً بعد جزء من الثانية لضمان التوسع
-        // window.onload = function() {
-        //     setTimeout(() => {
-        //         welcomeModal.style.opacity = '0';
-        //         setTimeout(() => {
-        //             welcomeModal.classList.add('hidden');
-        //         }, 300);
-        //     }, 50); // تأخير بسيط لضمان تنفيذ أوامر تليجرام أولاً
-        // };
 
 
         function handleRegister() {
@@ -170,18 +176,13 @@
                 return;
             }
 
-            // Clear previous error message
             errorMsg.classList.add('hidden');
             
-            // Disable button during storage/redirect
             registerButton.disabled = true; 
             registerButton.textContent = 'Processing...';
 
-            // 2. Save Username to localStorage
             try {
                 localStorage.setItem('registeredUsername', username);
-                
-                // 3. Redirect to main.html
                 window.location.href = 'main.html';
                 
             } catch (error) {
