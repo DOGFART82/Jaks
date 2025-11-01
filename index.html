@@ -6,18 +6,18 @@
     <title>Welcome Screen | Register</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
-    
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
     <style>
-        /* (CSS code as before) */
+        /* Apply a modern font */
         body {
             font-family: 'Inter', sans-serif;
             background-color: #000000;
         }
+        /* Ensure the screen fits the viewport exactly (100vh) without scrolling. */
         .mobile-container {
+            height: 100vh;
             box-sizing: border-box; 
         }
+        /* Video styling for 1:1 aspect ratio */
         video {
             aspect-ratio: 1 / 1;
             width: 100%;
@@ -25,32 +25,15 @@
             object-fit: cover;
             border-radius: 1rem;
         }
-        .modal-overlay {
-            background-color: rgba(0, 0, 0, 0.95);
-        }
     </style>
 </head>
 <body class="bg-black text-white antialiased">
 
-    <audio id="background-music" loop>
+    <audio id="background-music" autoplay loop muted>
         <source src="music.mp3" type="audio/mpeg">
         متصفحك لا يدعم وسم الصوت.
     </audio>
 
-    <div id="welcome-modal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-6 transition-opacity duration-300">
-        <div class="flex flex-col items-center p-8 text-center max-w-xs w-full">
-            
-            <h1 class="text-3xl sm:text-4xl font-extrabold mb-8 text-white">
-                WELCOME TO GROK 2.0
-            </h1>
-
-            <button id="enterButton"
-                    class="w-full bg-fuchsia-600 text-white font-semibold py-4 rounded-xl hover:bg-fuchsia-700 transition duration-150 shadow-lg shadow-fuchsia-500/30">
-                ENTER
-            </button>
-        </div>
-    </div>
-    
     <div class="mobile-container flex flex-col items-center justify-between p-6 md:p-12 max-w-sm mx-auto">
         
         <div class="flex flex-col items-center w-full my-auto">
@@ -66,14 +49,14 @@
                 Welcome
             </h1>
             <p class="text-lg text-white/60 text-center">
-                GROK 2.0 
+                Your journey starts here
             </p>
         </div>
 
         <div class="w-full mt-8">
             <p id="error-message" class="text-red-400 text-sm mb-3 hidden text-center"></p>
 
-            <input type="text" id="username" placeholder="Username "
+            <input type="text" id="username" placeholder="Username (Alphanumeric only)"
                    class="w-full bg-neutral-900 text-white placeholder-neutral-500 border border-neutral-700 p-4 rounded-xl mb-4 text-left focus:outline-none focus:ring-2 focus:ring-fuchsia-500 transition duration-150"
                    maxlength="20">
 
@@ -92,64 +75,26 @@
     </div>
 
     <script type="text/javascript">
-        
-        const music = document.getElementById('background-music');
-        const enterButton = document.getElementById('enterButton');
-        const welcomeModal = document.getElementById('welcome-modal');
-        const mobileContainer = document.querySelector('.mobile-container'); 
-
-        // 🌟🌟🌟 أوامر تليجرام للتوسع وتعيين الارتفاع فوراً 🌟🌟🌟
-        if (window.Telegram && window.Telegram.WebApp) {
-            const WebApp = window.Telegram.WebApp;
-            
-            WebApp.ready(); 
-            
-            // 1. توسيع التطبيق لملء الشاشة
-            WebApp.expand(); 
-            
-            // 2. إخفاء زر العودة في الشريط العلوي
-            WebApp.BackButton.hide();
-            
-            // 3. تعطيل السحب العمودي
-            if (WebApp.disableVerticalSwipes) {
-                WebApp.disableVerticalSwipes = true; 
-            }
-            
-            // 4. تفعيل إخفاء شريط العرض ( viewport ) عند التمرير (هذه أقوى دالة للتحكم في الأشرطة)
-            // هذه الدالة قد تحتاج لإصدار حديث من Telegram API
-            if (WebApp.setViewportHidingEnabled) {
-                WebApp.setViewportHidingEnabled(true);
-            }
-
-            // 5. دالة تعيين الارتفاع بناءً على قيمة تليجرام الدقيقة
-            function setHeight() {
-                if (WebApp.viewportHeight > 0) {
-                    mobileContainer.style.height = WebApp.viewportHeight + 'px';
-                }
-            }
-            
-            setHeight();
-            WebApp.onEvent('viewportChanged', setHeight);
-
-            console.log("Telegram Web App commands executed: Expand, Hide Buttons, and Height set.");
-        }
-        // 🌟🌟🌟 نهاية أوامر تليجرام 🌟🌟🌟
-
         document.getElementById('registerButton').addEventListener('click', handleRegister);
         
-        // وظيفة زر ENTER: تشغيل الموسيقى وإخفاء الـ Modal
-        enterButton.addEventListener('click', function() {
-            music.play().then(() => {
-                console.log("Music started successfully on ENTER click.");
-            }).catch(error => {
-                console.error("Error starting music on ENTER click:", error);
-            });
+        const music = document.getElementById('background-music');
 
-            // إخفاء النافذة المنبثقة
-            welcomeModal.style.opacity = '0';
-            setTimeout(() => {
-                welcomeModal.classList.add('hidden');
-            }, 300);
+        // 1. محاولة التشغيل الصامت بمجرد تحميل محتوى الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            music.play().catch(e => {
+                console.warn("Autoplay was prevented by the browser.", e);
+            });
+        });
+        
+        // 2. إلغاء كتم الموسيقى عند أول تفاعل من المستخدم (نقرة)
+        document.addEventListener('click', function unmuteMusic() {
+            if (music.muted) {
+                music.muted = false;
+                music.volume = 0.5; // تعيين مستوى الصوت
+                console.log("Music unmuted by user interaction.");
+                // إزالة المستمع لتنفيذه مرة واحدة فقط
+                document.removeEventListener('click', unmuteMusic); 
+            }
         });
 
 
@@ -159,7 +104,7 @@
             const errorMsg = document.getElementById('error-message');
             const registerButton = document.getElementById('registerButton');
 
-            // 1. Input Validation 
+            // 1. Input Validation (English letters and numbers only)
             const regex = /^[a-zA-Z0-9]+$/; 
 
             if (username.length === 0) {
@@ -174,21 +119,26 @@
                 return;
             }
 
+            // Clear previous error message
             errorMsg.classList.add('hidden');
             
+            // Disable button during storage/redirect
             registerButton.disabled = true; 
             registerButton.textContent = 'Processing...';
 
-            // 2. Save and Redirect
+            // 2. Save Username to localStorage
             try {
                 localStorage.setItem('registeredUsername', username);
+                console.log("Username saved to localStorage:", username);
+
+                // 3. Redirect to main.html
                 window.location.href = 'main.html';
                 
             } catch (error) {
                 console.error("Error saving username to localStorage:", error);
                 errorMsg.textContent = `Registration failed: Could not save username locally.`;
                 errorMsg.classList.remove('hidden');
-                registerButton.disabled = false; 
+                registerButton.disabled = false; // Re-enable button on failure
                 registerButton.textContent = 'Register';
             }
         }
