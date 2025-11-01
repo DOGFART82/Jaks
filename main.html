@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GROK 2.0 USDT Flash Platforms</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Default "Inter" font for aesthetics */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #000000;
+            display: block; 
+            min-height: 100vh; 
+        }
+        
+        /* Container to simulate Mobile App styling and add top padding */
+        .mobile-container {
+            width: 100%;
+            padding: 1.5rem; 
+            max-width: 30rem; 
+            margin: 0 auto; 
+            padding-top: 4rem; /* Large top padding to avoid Telegram's top bar interference */
+        }
+
+        /* General styling for platform icons */
+        .platform-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(6rem, 1fr)); /* 3-4 columns */
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .platform-item img {
+            width: 7rem; 
+            height: 7rem;
+            object-fit: contain;
+            border-radius: 2rem;
+            margin: 0 auto 0rem;
+            background-color: ; /* Dark background for images */
+            padding: 0.5rem;
+            transition: transform 0.15s;
+        }
+        .platform-item:hover img {
+            transform: scale(1.05);
+        }
+
+        /* Style for the SVG icons next to the titles */
+        .title-icon {
+            display: inline-block;
+            margin-right: 0.5rem;
+            vertical-align: middle;
+            color: #d1d5db; /* Gray-300 color */
+        }
+    </style>
+</head>
+<body class="bg-black text-white antialiased"> 
+    
+    <audio id="bipSound" src="bip.mp3" preload="metadata"></audio>
+    <audio id="backSound" src="back.mp3" preload="metadata"></audio>
+
+    <div class="mobile-container">
+        
+        <header class="w-full flex justify-between items-center mb-8">
+            
+            <button id="backButton" 
+                    class="text-neutral-400 hover:text-white transition duration-150 flex items-center p-1 -ml-1">
+                <svg class="w-6 h-6 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                <span class="font-medium">Back</span>
+            </button>
+            
+            <p id="uniqueIDDisplay" class="text-sm font-semibold text-neutral-500 text-right p-1">ID: LOADING...</p>
+        </header>
+
+        <h1 class="text-3xl font-bold text-green-400 mb-2 text-center">GROK 2.0 Flash Platforms</h1>
+        <p class="text-center text-neutral-400 mb-10">Thise platforms support USDT Flash transactions make sure your platform is listed.</p>
+        
+        <div class="mb-10">
+            <h2 class="text-xl font-semibold text-white mb-4 border-b border-neutral-700 pb-2 flex items-center">
+                <i data-lucide="building-2" class="w-5 h-5 title-icon"></i>
+                Centralized Exchanges (CEX)
+            </h2>
+            <div class="platform-grid">
+                <div class="platform-item">
+                    <img src="binance.png" alt="Binance" onerror="this.style.backgroundColor='#fcd34d'">
+                    <span class="text-xs text-neutral-300">Binance</span>
+                </div>
+                <div class="platform-item">
+                    <img src="bybit.png" alt="Bybit" onerror="this.style.backgroundColor='#f97316'">
+                    <span class="text-xs text-neutral-300">Bybit</span>
+                </div>
+                <div class="platform-item">
+                    <img src="mexc.png" alt="MEXC" onerror="this.style.backgroundColor='#10b981'">
+                    <span class="text-xs text-neutral-300">MEXC</span>
+                </div>
+                <div class="platform-item">
+                    <img src="safepal.png" alt="SafePal" onerror="this.style.backgroundColor='#3b82f6'">
+                    <span class="text-xs text-neutral-300">SafePal</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mb-10">
+            <h2 class="text-xl font-semibold text-white mb-4 border-b border-neutral-700 pb-2 flex items-center">
+                <i data-lucide="dice-5" class="w-5 h-5 title-icon"></i>
+                Betting & Gambling Platforms
+            </h2>
+            <div class="platform-grid">
+                <div class="platform-item">
+                    <img src="1xbet.png" alt="1xBet" onerror="this.style.backgroundColor='#1e40af'">
+                    <span class="text-xs text-neutral-300">1xBet</span>
+                </div>
+                <div class="platform-item">
+                    <img src="linebet.png" alt="Linebet" onerror="this.style.backgroundColor='#d97706'">
+                    <span class="text-xs text-neutral-300">Linebet</span>
+                </div>
+                <div class="platform-item">
+                    <img src="megapari.png" alt="Megapari" onerror="this.style.backgroundColor='#065f46'">
+                    <span class="text-xs text-neutral-300">Megapari</span>
+                </div>
+                <div class="platform-item">
+                    <img src="malbet.png" alt="Malbet" onerror="this.style.backgroundColor='#6d28d9'">
+                    <span class="text-xs text-neutral-300">Malbet</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-10">
+            <h2 class="text-xl font-semibold text-white mb-4 border-b border-neutral-700 pb-2 flex items-center">
+                <i data-lucide="lock" class="w-5 h-5 title-icon"></i>
+                Crypto Wallets
+            </h2>
+            <div class="platform-grid">
+                <div class="platform-item">
+                    <img src="trustwallet.png" alt="TrustWallet" onerror="this.style.backgroundColor='#2563eb'">
+                    <span class="text-xs text-neutral-300">TrustWallet</span>
+                </div>
+                <div class="platform-item">
+                    <img src="phantom.png" alt="Phantom" onerror="this.style.backgroundColor='#7c3aed'">
+                    <span class="text-xs text-neutral-300">Phantom</span>
+                </div>
+                <div class="platform-item">
+                    <img src="metamask.png" alt="MetaMask" onerror="this.style.backgroundColor='#f97316'">
+                    <span class="text-xs text-neutral-300">MetaMask</span>
+                </div>
+                <div class="platform-item">
+                    <img src="tronlink.png" alt="TronLink" onerror="this.style.backgroundColor='#ef4444'">
+                    <span class="text-xs text-neutral-300">TronLink</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-10">
+            <h2 class="text-xl font-semibold text-white mb-4 border-b border-neutral-700 pb-2 flex items-center">
+                <i data-lucide="bar-chart-2" class="w-5 h-5 title-icon"></i>
+                Trading Brokers
+            </h2>
+            <div class="platform-grid" style="grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));">
+                <div class="platform-item">
+                    <img src="quotex.png" alt="Quotex" onerror="this.style.backgroundColor='#eab308'">
+                    <span class="text-xs text-neutral-300">Quotex</span>
+                </div>
+                <div class="platform-item">
+                    <img src="xm.png" alt="XM" onerror="this.style.backgroundColor='#b91c1c'">
+                    <span class="text-xs text-neutral-300">XM</span>
+                </div>
+                <div class="platform-item">
+                    <img src="tickmall.png" alt="Tickmall" onerror="this.style.backgroundColor='#059669'">
+                    <span class="text-xs text-neutral-300">Tickmall</span>
+                </div>
+                <div class="platform-item">
+                    <img src="etoro.png" alt="eToro" onerror="this.style.backgroundColor='#3b82f6'">
+                    <span class="text-xs text-neutral-300">eToro</span>
+                </div>
+                <div class="platform-item">
+                    <img src="exness.png" alt="Exness" onerror="this.style.backgroundColor='#10b981'">
+                    <span class="text-xs text-neutral-300">Exness</span>
+                </div>
+                <div class="platform-item">
+                    <img src="expert.png" alt="ExpertOption" onerror="this.style.backgroundColor='#7c3aed'">
+                    <span class="text-xs text-neutral-300">ExpertOption</span>
+                </div>
+                <div class="platform-item">
+                    <img src="pocket.png" alt="PocketOption" onerror="this.style.backgroundColor='#f97316'">
+                    <span class="text-xs text-neutral-300">PocketOption</span>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+    <script type="text/javascript">
+        // ------------------ Play Normal Click Sound (bip.mp3) ------------------
+        function playBipSound() {
+            const bip = document.getElementById('bipSound');
+            if (bip) {
+                bip.currentTime = 0;
+                bip.play().catch(error => {
+                    // console.log("Audio playback blocked:", error); 
+                });
+            }
+        }
+        
+        // ------------------ Play Back Sound (back.mp3) ------------------
+        function playBackSound() {
+            const back = document.getElementById('backSound');
+            if (back) {
+                back.currentTime = 0;
+                back.play().catch(error => {
+                    // console.log("Back Audio playback blocked:", error); 
+                });
+            }
+        }
+
+        // ------------------ Generate and Store User ID Logic ------------------
+        function generateUniqueID() {
+            let id = '';
+            for (let i = 0; i < 10; i++) {
+                id += Math.floor(Math.random() * 10);
+            }
+            return id;
+        }
+
+        const idDisplayElement = document.getElementById('uniqueIDDisplay');
+        let uniqueID = localStorage.getItem('userAppID');
+
+        if (!uniqueID) {
+            uniqueID = generateUniqueID();
+            localStorage.setItem('userAppID', uniqueID);
+        }
+
+        idDisplayElement.textContent = `ID: ${uniqueID}`;
+        // ------------------ End of User ID Logic ------------------
+
+        // Elements
+        const backButton = document.getElementById('backButton'); 
+        
+        // ⬅️ Back Button Click Handler
+        backButton.addEventListener('click', (event) => {
+            playBackSound();
+            // Redirect to main.html
+            setTimeout(() => {
+                 window.location.href = 'main.html';
+            }, 50); 
+            event.preventDefault(); 
+        });
+        
+        // 🔊 Attach bip.mp3 sound to platform items
+        document.querySelectorAll('.platform-item').forEach(item => {
+            item.addEventListener('click', playBipSound);
+        });
+
+        // Initialize Lucide icons on window load
+        window.onload = () => {
+             lucide.createIcons();
+        };
+
+    </script>
+</body>
+</html>
