@@ -10,17 +10,14 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
     <style>
-        /* Apply a modern font */
+        /* ... أكواد CSS ... */
         body {
             font-family: 'Inter', sans-serif;
             background-color: #000000;
         }
-        /* mobile-container سيتم تعيين ارتفاعه عبر JavaScript بوحدة البكسل */
         .mobile-container {
             box-sizing: border-box; 
-            /* ⚠️ تم إزالة height: 100vh ليتوافق مع WebApp.viewportHeight */
         }
-        /* Video styling for 1:1 aspect ratio */
         video {
             aspect-ratio: 1 / 1;
             width: 100%;
@@ -28,7 +25,6 @@
             object-fit: cover;
             border-radius: 1rem;
         }
-        /* Modal Backdrop Styling */
         .modal-overlay {
             background-color: rgba(0, 0, 0, 0.95);
         }
@@ -41,7 +37,7 @@
         متصفحك لا يدعم وسم الصوت.
     </audio>
 
-    <div id="welcome-modal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-6 transition-opacity duration-300">
+    <div id="welcome-modal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-6 transition-opacity duration-300 hidden">
         <div class="flex flex-col items-center p-8 text-center max-w-xs w-full">
             
             <h1 class="text-3xl sm:text-4xl font-extrabold mb-8 text-white">
@@ -99,11 +95,11 @@
         
         const music = document.getElementById('background-music');
         const enterButton = document.getElementById('enterButton');
-        const welcomeModal = document.getElementById('welcome-modal');
-        // تحديد الحاوية الرئيسية
+        // const welcomeModal = document.getElementById('welcome-modal'); // لم نعد نستخدم هذا المتغير مباشرة
         const mobileContainer = document.querySelector('.mobile-container'); 
 
         // 🌟🌟🌟 أوامر تليجرام للتوسع وتعيين الارتفاع عند التحميل 🌟🌟🌟
+        // تنفيذ هذه الأوامر أولاً يضمن عدم حجبها بواسطة الـ Modal
         if (window.Telegram && window.Telegram.WebApp) {
             const WebApp = window.Telegram.WebApp;
             
@@ -115,24 +111,26 @@
             // 2. إخفاء زر العودة في الشريط العلوي
             WebApp.BackButton.hide();
             
-            // 3. تعطيل السحب العمودي لمنع ظهور عناصر تليجرام عند السحب
+            // 3. تعطيل السحب العمودي
             if (WebApp.disableVerticalSwipes) {
                 WebApp.disableVerticalSwipes = true; 
             }
             
             // 4. دالة تعيين الارتفاع بناءً على ارتفاع منفذ العرض لتليجرام
             function setHeight() {
-                // التأكد من أن القيمة صالحة
                 if (WebApp.viewportHeight > 0) {
                     mobileContainer.style.height = WebApp.viewportHeight + 'px';
                 }
             }
             
-            // تعيين الارتفاع فوراً عند التحميل
             setHeight();
-            
-            // تعيين الارتفاع عند تغيير حجم المنفذ (عندما تختفي الأزرار أو تظهر لوحة المفاتيح)
             WebApp.onEvent('viewportChanged', setHeight);
+
+            // 5. محاولة تشغيل الموسيقى تلقائيا بعد التوسع
+             music.play().catch(error => {
+                console.error("Error starting music automatically:", error);
+                // إذا فشل التشغيل التلقائي، يمكننا استخدام زر ENTER لتشغيلها
+            });
 
             console.log("Telegram Web App commands executed: Expand and Height set.");
         }
@@ -140,18 +138,16 @@
 
         document.getElementById('registerButton').addEventListener('click', handleRegister);
         
-        // تعديل وظيفة زر ENTER للتركيز فقط على الإخفاء والموسيقى
+        // **وظيفة زر ENTER (إذا لم تنجح الموسيقى التلقائية فقط):**
+        // بما أن الـ Modal أصبح مخفياً الآن، هذا الزر يمكن أن يظل لإطلاق الموسيقى (بسبب قيود المتصفحات على التشغيل التلقائي)
         enterButton.addEventListener('click', function() {
-            // محاولة تشغيل الموسيقى
             music.play().catch(error => {
-                console.error("Error starting music:", error);
+                console.error("Error starting music manually:", error);
             });
-
-            // إخفاء النافذة المنبثقة
-            welcomeModal.style.opacity = '0';
-            setTimeout(() => {
-                welcomeModal.classList.add('hidden');
-            }, 300);
+            // إذا كنت تريد إظهار الـ Modal في البداية وإخفاءه بالزر، يجب إزالة 'hidden' من HTML
+            // ثم استخدام هذا الكود:
+            // welcomeModal.style.opacity = '0';
+            // setTimeout(() => { welcomeModal.classList.add('hidden'); }, 300);
         });
 
 
