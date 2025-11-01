@@ -10,17 +10,15 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
     <style>
-        /* Apply a modern font */
+        /* (الكود CSS بدون تغيير) */
         body {
             font-family: 'Inter', sans-serif;
             background-color: #000000;
         }
-        /* Ensure the screen fits the viewport exactly (100vh) without scrolling. */
         .mobile-container {
             height: 100vh;
             box-sizing: border-box; 
         }
-        /* Video styling for 1:1 aspect ratio */
         video {
             aspect-ratio: 1 / 1;
             width: 100%;
@@ -28,9 +26,8 @@
             object-fit: cover;
             border-radius: 1rem;
         }
-        /* Modal Backdrop Styling */
         .modal-overlay {
-            background-color: rgba(0, 0, 0, 0.95); /* خلفية سوداء شبه شفافة */
+            background-color: rgba(0, 0, 0, 0.95);
         }
     </style>
 </head>
@@ -96,23 +93,39 @@
 
     <script type="text/javascript">
         
-        // 🌟🌟🌟 التعديل هنا: تنفيذ أوامر تليجرام مباشرة 🌟🌟🌟
-        // هذا يضمن أن يتم توسيع التطبيق لملء الشاشة فور فتح الرابط في تليجرام.
+        // 🌟🌟🌟 أوامر تليجرام للتوسع والإخفاء عند التحميل 🌟🌟🌟
         if (window.Telegram && window.Telegram.WebApp) {
             const WebApp = window.Telegram.WebApp;
             
-            // التأكد من جاهزية الـ API
             WebApp.ready(); 
             
-            // أمر لتليجرام بتوسيع التطبيق لأقصى ارتفاع ممكن (لإخفاء الشريط السفلي)
+            // 1. توسيع التطبيق لملء الشاشة وإخفاء الشريط السفلي
             WebApp.expand(); 
-            
-            // إخفاء زر العودة في الشريط العلوي (لإزالة أي عناصر تحكم أخرى)
+
+            // 2. إخفاء زر العودة إذا كان متوفراً
             WebApp.BackButton.hide();
             
-            console.log("Telegram Web App expanded immediately upon load.");
+            // 3. محاولة إخفاء شريط العرض الإضافي (للتأثير على شريط التنقل)
+            // هذه الدالة تسمح بإخفاء شريط التنقل عند السحب العمودي
+            WebApp.setViewportHidingEnabled(true);
+            
+            // 4. إخفاء أي أزرار مخصصة قد تكون ظاهرة
+            if (WebApp.MainButton) {
+                WebApp.MainButton.hide();
+            }
+            if (WebApp.CloseButton) {
+                WebApp.CloseButton.hide();
+            }
+
+            // 5. تعطيل السحب العمودي لإغلاق الويب فيو (يساعد في منع ظهور العناصر السفلية)
+            // هذه الخاصية تم إضافتها في إصدارات حديثة من API
+            if (WebApp.disableVerticalSwipes) {
+                WebApp.disableVerticalSwipes = true; 
+            }
+            
+            console.log("Telegram Web App commands executed: Expand, Hide Buttons, Disable Swipes.");
         }
-        // 🌟🌟🌟 نهاية التعديل 🌟🌟🌟
+        // 🌟🌟🌟 نهاية أوامر تليجرام 🌟🌟🌟
 
         document.getElementById('registerButton').addEventListener('click', handleRegister);
         
