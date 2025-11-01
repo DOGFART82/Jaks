@@ -29,11 +29,172 @@
         .modal-overlay {
             background-color: rgba(0, 0, 0, 0.95);
         }
+        /* إخفاء الـ modal بشكل افتراضي (سنستخدم JS لإظهاره/إخفائه) */
+        .hidden-on-load {
+            display: none !important; 
+        }
     </style>
 </head>
 <body class="bg-black text-white antialiased">
 
     <audio id="background-music" loop>
+        <source src="music.mp3" type="audio/mpeg">
+        متصفحك لا يدعم وسم الصوت.
+    </audio>
+
+    <div id="welcome-modal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-6 transition-opacity duration-300">
+        <div class="flex flex-col items-center p-8 text-center max-w-xs w-full">
+            
+            <h1 class="text-3xl sm:text-4xl font-extrabold mb-8 text-white">
+                WELCOME TO GROK 2.0
+            </h1>
+
+            <button id="enterButton"
+                    class="w-full bg-fuchsia-600 text-white font-semibold py-4 rounded-xl hover:bg-fuchsia-700 transition duration-150 shadow-lg shadow-fuchsia-500/30">
+                ENTER
+            </button>
+        </div>
+    </div>
+    
+    <div class="mobile-container flex flex-col items-center justify-between p-6 md:p-12 max-w-sm mx-auto">
+        
+        <div class="flex flex-col items-center w-full my-auto">
+            <div class="w-full max-w-xs mb-8 overflow-hidden rounded-2xl shadow-xl shadow-fuchsia-900/10">
+                <video id="spaceVideo" autoplay loop muted playsinline poster="https://placehold.co/300x300/18181b/ffffff?text=Video+Loading+..." class="w-full h-auto">
+                    <source src="space.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+
+            <h1 class="text-5xl font-extrabold mb-2 text-center">
+                Welcome
+            </h1>
+            <p class="text-lg text-white/60 text-center">
+                GROK 2.0 
+            </p>
+        </div>
+
+        <div class="w-full mt-8">
+            <p id="error-message" class="text-red-400 text-sm mb-3 hidden text-center"></p>
+
+            <input type="text" id="username" placeholder="Username "
+                   class="w-full bg-neutral-900 text-white placeholder-neutral-500 border border-neutral-700 p-4 rounded-xl mb-4 text-left focus:outline-none focus:ring-2 focus:ring-fuchsia-500 transition duration-150"
+                   maxlength="20">
+
+            <button id="registerButton"
+                    class="w-full bg-white text-black font-semibold py-4 rounded-xl hover:bg-neutral-200 transition duration-150 shadow-lg shadow-white/20">
+                Register
+            </button>
+            
+            <div class="mt-8 text-xs text-white/50 text-center leading-relaxed">
+                By clicking "Register," you agree to our
+                <a href="#" class="text-white/80 underline font-medium hover:text-white transition duration-150">Terms of Service</a>
+                and
+                <a href="#" class="text-white/80 underline font-medium hover:text-white transition duration-150">Privacy Policy</a>.
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        
+        const music = document.getElementById('background-music');
+        const enterButton = document.getElementById('enterButton');
+        const welcomeModal = document.getElementById('welcome-modal');
+
+        // 🌟🌟🌟 التعديل الأساسي: تنفيذ التوسع والإخفاء عند التحميل 🌟🌟🌟
+        if (window.Telegram && window.Telegram.WebApp) {
+            const WebApp = window.Telegram.WebApp;
+            
+            WebApp.ready(); 
+            
+            // 1. توسيع التطبيق لملء الشاشة وإخفاء الشريط السفلي
+            WebApp.expand(); 
+            
+            // 2. إخفاء زر العودة في الشريط العلوي
+            WebApp.BackButton.hide();
+            
+            // 3. تعطيل السحب العمودي لمنع ظهور عناصر تليجرام عند السحب
+            if (WebApp.disableVerticalSwipes) {
+                WebApp.disableVerticalSwipes = true; 
+            }
+            
+            console.log("Telegram Web App expanded immediately upon load.");
+        }
+        // 🌟🌟🌟 نهاية أوامر تليجرام 🌟🌟🌟
+
+        document.getElementById('registerButton').addEventListener('click', handleRegister);
+        
+        // تعديل وظيفة زر ENTER للتركيز فقط على الإخفاء والموسيقى
+        enterButton.addEventListener('click', function() {
+            // محاولة تشغيل الموسيقى
+            music.play().catch(error => {
+                console.error("Error starting music:", error);
+            });
+
+            // إخفاء النافذة المنبثقة
+            welcomeModal.style.opacity = '0';
+            setTimeout(() => {
+                welcomeModal.classList.add('hidden');
+            }, 300);
+        });
+
+        // إذا كان هناك شك في عرض الـ Modal، قم بإخفائه تلقائياً بعد جزء من الثانية لضمان التوسع
+        // window.onload = function() {
+        //     setTimeout(() => {
+        //         welcomeModal.style.opacity = '0';
+        //         setTimeout(() => {
+        //             welcomeModal.classList.add('hidden');
+        //         }, 300);
+        //     }, 50); // تأخير بسيط لضمان تنفيذ أوامر تليجرام أولاً
+        // };
+
+
+        function handleRegister() {
+            const usernameInput = document.getElementById('username');
+            const username = usernameInput.value.trim();
+            const errorMsg = document.getElementById('error-message');
+            const registerButton = document.getElementById('registerButton');
+
+            // 1. Input Validation 
+            const regex = /^[a-zA-Z0-9]+$/; 
+
+            if (username.length === 0) {
+                errorMsg.textContent = 'Please enter a username.';
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+            
+            if (!regex.test(username)) {
+                errorMsg.textContent = 'Username must contain English letters and numbers only.';
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+
+            // Clear previous error message
+            errorMsg.classList.add('hidden');
+            
+            // Disable button during storage/redirect
+            registerButton.disabled = true; 
+            registerButton.textContent = 'Processing...';
+
+            // 2. Save Username to localStorage
+            try {
+                localStorage.setItem('registeredUsername', username);
+                
+                // 3. Redirect to main.html
+                window.location.href = 'main.html';
+                
+            } catch (error) {
+                console.error("Error saving username to localStorage:", error);
+                errorMsg.textContent = `Registration failed: Could not save username locally.`;
+                errorMsg.classList.remove('hidden');
+                registerButton.disabled = false; 
+                registerButton.textContent = 'Register';
+            }
+        }
+    </script>
+</body>
+</html>
         <source src="music.mp3" type="audio/mpeg">
         متصفحك لا يدعم وسم الصوت.
     </audio>
