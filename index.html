@@ -1,39 +1,96 @@
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome Screen | Register</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
-    <style>
-        /* Apply a modern font */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #000000;
+    <script type="text/javascript">
+        document.getElementById('registerButton').addEventListener('click', handleRegister);
+        
+        const music = document.getElementById('background-music');
+        const enterButton = document.getElementById('enterButton');
+        const welcomeModal = document.getElementById('welcome-modal');
+        
+        // ** التعديلات الجديدة لتليجرام تبدأ هنا **
+        
+        // 1. تحقق من وجود واجهة Telegram WebApp
+        if (window.Telegram && window.Telegram.WebApp) {
+            const WebApp = window.Telegram.WebApp;
+            
+            // 2. إخفاء زر الرجوع (إذا كان ظاهراً)
+            WebApp.BackButton.hide();
+            
+            // 3. محاولة طلب وضع ملء الشاشة لإخفاء الأشرطة (أكثر الطرق فعالية)
+            // هذه الخاصية متوفرة في الإصدارات الحديثة من Mini Apps
+            WebApp.requestFullscreen();
+            
+            // 4. يفضل استدعاء ready() لإخبار تليجرام بأن التطبيق جاهز
+            WebApp.ready(); 
+        } else {
+            console.log("Not running inside Telegram WebApp or API is not yet loaded.");
         }
-        /* Ensure the screen fits the viewport exactly (100vh) without scrolling. */
-        .mobile-container {
-            height: 100vh;
-            box-sizing: border-box; 
-        }
-        /* Video styling for 1:1 aspect ratio */
-        video {
-            aspect-ratio: 1 / 1;
-            width: 100%;
-            max-width: 300px;
-            object-fit: cover;
-            border-radius: 1rem;
-        }
-        /* Modal Backdrop Styling */
-        .modal-overlay {
-            background-color: rgba(0, 0, 0, 0.95); /* خلفية سوداء شبه شفافة */
-        }
-    </style>
-</head>
-<body class="bg-black text-white antialiased">
+        
+        // ** نهاية التعديلات الجديدة لتليجرام **
 
-    <audio id="background-music" loop>
+
+        // دالة تشغيل الموسيقى وإخفاء النافذة المنبثقة
+        enterButton.addEventListener('click', function() {
+            // محاولة تشغيل الموسيقى - متأكدون أنها ستعمل لأنها تفاعل من المستخدم
+            music.play().then(() => {
+                console.log("Music started successfully.");
+            }).catch(error => {
+                console.error("Error starting music:", error);
+                // في حالة فشل التشغيل، يمكن إظهار رسالة
+                alert("Could not start background music. Please refresh.");
+            });
+            
+            // إخفاء النافذة المنبثقة
+            welcomeModal.style.opacity = '0';
+            setTimeout(() => {
+                welcomeModal.classList.add('hidden');
+            }, 300); // 300ms تتطابق مع مدة الانتقال (transition duration)
+        });
+
+
+        function handleRegister() {
+            const usernameInput = document.getElementById('username');
+            const username = usernameInput.value.trim();
+            const errorMsg = document.getElementById('error-message');
+            const registerButton = document.getElementById('registerButton');
+
+            // 1. Input Validation (English letters and numbers only)
+            const regex = /^[a-zA-Z0-9]+$/; 
+
+            if (username.length === 0) {
+                errorMsg.textContent = 'Please enter a username.';
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+            
+            if (!regex.test(username)) {
+                errorMsg.textContent = 'Username must contain English letters and numbers only.';
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+
+            // Clear previous error message
+            errorMsg.classList.add('hidden');
+            
+            // Disable button during storage/redirect
+            registerButton.disabled = true; 
+            registerButton.textContent = 'Processing...';
+
+            // 2. Save Username to localStorage
+            try {
+                localStorage.setItem('registeredUsername', username);
+                console.log("Username saved to localStorage:", username);
+
+                // 3. Redirect to main.html
+                window.location.href = 'main.html';
+                
+            } catch (error) {
+                console.error("Error saving username to localStorage:", error);
+                errorMsg.textContent = `Registration failed: Could not save username locally.`;
+                errorMsg.classList.remove('hidden');
+                registerButton.disabled = false; // Re-enable button on failure
+                registerButton.textContent = 'Register';
+            }
+        }
+    </script>
         <source src="music.mp3" type="audio/mpeg">
         متصفحك لا يدعم وسم الصوت.
     </audio>
