@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome Screen | Register</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+Arabic:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        /* Apply a modern font, prioritizing Inter for English */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000000;
+        }
+        /* MODIFIED: Ensure the screen fits the viewport exactly (100vh) without scrolling. */
+        .mobile-container {
+            height: 100vh;
+            /* Use padding for spacing, letting flexbox handle distribution */
+            box-sizing: border-box; 
+        }
+        /* Video styling for 1:1 aspect ratio */
+        video {
+            /* Make the video square and responsive */
+            aspect-ratio: 1 / 1;
+            width: 100%;
+            max-width: 300px; /* Limit size on larger devices */
+            object-fit: cover;
+            border-radius: 1rem; /* Subtle rounded corners */
+        }
+    </style>
+</head>
+<body class="bg-black text-white antialiased">
+
+    <!-- Main Screen Container - Designed for Mobile -->
+    <!-- The p-6 padding and flex-col justify-between ensure full screen coverage and content separation -->
+    <div class="mobile-container flex flex-col items-center justify-between p-6 md:p-12 max-w-sm mx-auto">
+        
+        <!-- 1. Top Icon (User Profile Mock) -->
+        <div class="w-full flex justify-end">
+            <!-- Dummy user icon in the top right corner -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-white/80">
+                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+          
+        </div>
+
+        <!-- 2. Video and Welcome Section (Flexibly centered) -->
+        <!-- Removed fixed/negative margins to ensure vertical fit -->
+        <div class="flex flex-col items-center w-full my-auto">
+            
+            <!-- Video Placeholder (space.mp4) -->
+            <div class="w-full max-w-xs mb-8 overflow-hidden rounded-2xl shadow-xl shadow-fuchsia-900/10">
+                <video id="spaceVideo" autoplay loop muted playsinline poster="https://placehold.co/300x300/18181b/ffffff?text=Video+Loading+..." class="w-full h-auto">
+                    <!-- Ensure the space.mp4 file is present here -->
+                    <source src="space.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+
+            <!-- Welcome Text -->
+            <h1 class="text-5xl font-extrabold mb-2 text-center">
+                Welcome
+            </h1>
+            <p class="text-lg text-white/60 text-center">
+                Your journey starts here
+            </p>
+        </div>
+
+        <!-- 3. Input, Registration, and Terms Section (Bottom aligned) -->
+        <div class="w-full mt-8">
+            <!-- Error message (hidden initially) -->
+            <p id="error-message" class="text-red-400 text-sm mb-3 hidden text-center"></p>
+
+            <!-- Username Input Field -->
+            <input type="text" id="username" placeholder="Username (Alphanumeric only)"
+                   class="w-full bg-neutral-900 text-white placeholder-neutral-500 border border-neutral-700 p-4 rounded-xl mb-4 text-left focus:outline-none focus:ring-2 focus:ring-fuchsia-500 transition duration-150"
+                   maxlength="20">
+
+            <!-- Register Button -->
+            <button id="registerButton"
+                    class="w-full bg-white text-black font-semibold py-4 rounded-xl hover:bg-neutral-200 transition duration-150 shadow-lg shadow-white/20">
+                Register
+            </button>
+            
+            <!-- Terms and Privacy Section -->
+            <div class="mt-8 text-xs text-white/50 text-center leading-relaxed">
+                By clicking "Register," you agree to our
+                <a href="#" class="text-white/80 underline font-medium hover:text-white transition duration-150">Terms of Service</a>
+                and
+                <a href="#" class="text-white/80 underline font-medium hover:text-white transition duration-150">Privacy Policy</a>.
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK Imports (Required for all projects using the environment) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        // NOTE: We are using Firestore (cloud database) instead of localStorage for persistent storage.
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase Setup (Mandatory in this environment)
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let app, db, auth;
+        let isAuthReady = false;
+
+        try {
+            if (Object.keys(firebaseConfig).length > 0) {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                setLogLevel('Debug'); // Enable Firebase logs
+                
+                // Automatic user authentication
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        isAuthReady = true;
+                        console.log("User authenticated. UID:", user.uid);
+                    } else {
+                        // Attempt to sign in if not already signed in
+                        if (initialAuthToken) {
+                            signInWithCustomToken(auth, initialAuthToken).catch(e => console.error("Firebase Auth Token Error:", e));
+                        } else {
+                            signInAnonymously(auth).catch(e => console.error("Firebase Anon Sign-in Error:", e));
+                        }
+                    }
+                });
+            } else {
+                console.error("Firebase configuration is missing.");
+            }
+        } catch (error) {
+            console.error("Firebase initialization failed:", error);
+        }
+
+        // Validation, Registration, and Redirection function
+        document.getElementById('registerButton').addEventListener('click', handleRegister);
+
+        async function handleRegister() {
+            const usernameInput = document.getElementById('username');
+            const username = usernameInput.value.trim();
+            const errorMsg = document.getElementById('error-message');
+
+            // 1. Input Validation (English letters and numbers only)
+            const regex = /^[a-zA-Z0-9]+$/; 
+
+            if (username.length === 0) {
+                errorMsg.textContent = 'Please enter a username.';
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+            
+            if (!regex.test(username)) {
+                errorMsg.textContent = 'Username must contain English letters and numbers only.';
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+
+            // Clear previous error message
+            errorMsg.classList.add('hidden');
+            
+            // 2. Check Authentication Status
+            if (!db || !auth || !auth.currentUser) {
+                errorMsg.textContent = 'System initializing or authentication failed. Please wait a moment and try again.';
+                errorMsg.classList.remove('hidden');
+                console.error("Firebase services or user not ready. Cannot save data.");
+                return;
+            }
+
+            const userId = auth.currentUser.uid;
+            
+            // 3. Save Username to Firestore
+            try {
+                // Document path: /artifacts/{appId}/users/{userId}/user_data/profile
+                const userDocRef = doc(
+                    db, 
+                    'artifacts', appId, 
+                    'users', userId, 
+                    'user_data', 
+                    'profile'
+                );
+                
+                // Save the username
+                await setDoc(userDocRef, { 
+                    username: username,
+                    registeredAt: new Date().toISOString()
+                }, { merge: true }); // merge: true ensures we only update these fields
+                
+                console.log("Username saved successfully for user:", userId);
+
+                // 4. Redirect to main.html after successful save
+                window.location.href = 'main.html';
+
+            } catch (error) {
+                console.error("Error saving username to Firestore:", error);
+                errorMsg.textContent = `Registration failed: Could not save username.`;
+                errorMsg.classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
+
