@@ -30,6 +30,11 @@
     </style>
 </head>
 <body class="bg-black text-white antialiased">
+    
+    <audio id="bipSound">
+        <source src="bip.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
 
     <div class="mobile-container flex flex-col items-center justify-between p-6 md:p-12 max-w-sm mx-auto">
         
@@ -93,9 +98,21 @@
         }
         // ------------------------------------
 
+        // Get the audio element once
+        const bipSound = document.getElementById('bipSound');
         document.getElementById('registerButton').addEventListener('click', handleRegister);
 
         function handleRegister() {
+            // تشغيل صوت الـ bip قبل أي معالجة
+            // يجب إعادة تحميل/إعادة تعيين الوقت لجعل الصوت يعمل في كل مرة يتم النقر فيها.
+            try {
+                bipSound.currentTime = 0; // إعادة تعيين الصوت للبداية
+                bipSound.play();
+            } catch (e) {
+                console.error("Could not play sound:", e);
+                // الاستمرار في العملية حتى لو فشل تشغيل الصوت
+            }
+            
             const usernameInput = document.getElementById('username');
             const username = usernameInput.value.trim();
             const errorMsg = document.getElementById('error-message');
