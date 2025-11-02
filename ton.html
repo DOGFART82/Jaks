@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TON Payment - Neon Ledger (iOS Glass)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+
+  <style>
+    /* 💡 iOS Dark Mode & Neon Colors (Focusing on Cyan/TON) */
+    :root {
+      --primary-bg: #000000; 
+      --secondary-bg: #1C1C1E; 
+      --tertiary-bg: #2C2C2E; 
+      --text-color: #FFFFFF;
+      --secondary-text-color: #98989a;
+      --border-color: #38383a;
+      --back-button-color: #FFFFFF; 
+      
+      /* TON Neon Theme Variables */
+      --neon-cyan: #00E0FF; 
+      --primary-bg-dark: #000000;
+      --input-bg-dark: #181830; 
+      --shadow-color-ton: rgba(0, 224, 255, 0.7);
+      --error-color: #FF3B30; /* Using standard iOS Red for consistency */
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0; 
+      padding: 0; 
+      font-family: 'Inter', sans-serif, 'Arial', sans-serif;
+      transition: all 0.3s ease-in-out; 
+    }
+
+    /* Base Body Styling */
+    body {
+      color: var(--text-color);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center; 
+      padding: 20px;
+      overflow-x: hidden;
+      padding-top: 5rem; /* Space for the lowered back button */
+      position: relative; 
+    }
+    
+    /* --- Video Background Styling --- */
+    #video-background {
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      min-width: 100%;
+      min-height: 100%;
+      width: auto;
+      height: auto;
+      z-index: -100; 
+      object-fit: cover; 
+      filter: none; 
+    }
+
+    /* Container (Frosted Glass / شفافة) - 350px width */
+    .container {
+      background: rgba(28, 28, 30, 0.4); 
+      backdrop-filter: blur(15px); 
+      border-radius: 12px;
+      padding: 25px 30px; 
+      /* 💡 تطبيق التعديل: تصغير الحاوية */
+      max-width: 350px; 
+      width: 90vw; 
+      /* تطبيق حدود النيون الأزرق السماوي وظله */
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 15px var(--shadow-color-ton); 
+      border: 1px solid rgba(255, 255, 255, 0.1); 
+      display: flex;
+      flex-direction: column;
+      gap: 15px; 
+      position: relative; 
+      z-index: 10; 
+    }
+
+    /* --- Back Button Style (Fixed to 3rem) --- */
+    .back-button-container {
+      width: 100%;
+      position: fixed; 
+      /* 💡 تطبيق التعديل: إنزال زر العودة */
+      top: 3rem; 
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 20px;
+      padding-top: 1rem; 
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      z-index: 20;
+      background-color: transparent; 
+    }
+
+    .back-button {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: var(--back-button-color); 
+      font-size: 1.1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      transition: opacity 0.2s;
+      text-decoration: none;
+      text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+      padding-left: 10px; 
+    }
+    .back-button:hover {
+        opacity: 0.7;
+    }
+    .back-button svg {
+        width: 20px;
+        height: 20px;
+        margin-right: 5px;
+        stroke-width: 2.5;
+    }
+
+
+    /* Title Styling */
+    h2 {
+      text-align: center;
+      margin-bottom: 5px;
+      font-size: 1.8rem; 
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      color: var(--neon-cyan); 
+      text-shadow: 0 0 8px var(--shadow-color-ton); 
+      padding-bottom: 10px;
+    }
+    .title img {
+        box-shadow: 0 0 10px var(--neon-cyan);
+    }
+
+    /* Field Titles/Labels */
+    .field-title {
+        text-align: left;
+        color: var(--secondary-text-color);
+        font-size: 0.9rem; 
+        font-weight: 500;
+        margin-bottom: 5px;
+        display: block; 
+    }
+
+    /* Select/Dropdown Style */
+    select {
+      width: 100%;
+      padding: 14px; 
+      font-size: 1rem;
+      border-radius: 10px; 
+      border: 1px solid rgba(0, 224, 255, 0.5); 
+      background-color: var(--input-bg-dark);
+      color: var(--text-color);
+      margin-bottom: 20px;
+      outline: none;
+      transition: box-shadow 0.3s;
+      -webkit-appearance: none; 
+      appearance: none;
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.6);
+    }
+    select:focus {
+        box-shadow: 0 0 10px var(--shadow-color-ton), inset 0 2px 5px rgba(0, 0, 0, 0.6);
+    }
+    select {
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22white%22%3E%3Cpath%20d%3D%22M5.293%207.293a1%201%200%20011.414%200L10%2010.586l3.293-3.293a1%201%200%20111.414%201.414l-4%204a1%201%200%2001-1.414%200l-4-4a1%201%200%20010-1.414z%22%20clip-rule%3D%22evenodd%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E");
+      background-repeat: no-repeat;
+      background-position: right 15px center;
+      background-size: 15px;
+    }
+
+    /* Payment Note Style */
+    .note {
+      font-size: 1.15rem;
+      color: var(--neon-cyan);
+      font-weight: 700;
+      margin-bottom: 25px;
+      text-shadow: 0 0 5px rgba(0, 224, 255, 0.5);
+      padding: 5px 0;
+    }
+
+    /* --- Wallet Address and Copy Button Layout --- */
+    .address-group {
+        display: flex;
+        align-items: stretch;
+        margin-bottom: 15px; /* Reduced margin to fit Memo below */
+        gap: 10px; 
+    }
+    
+    .memo-group {
+        margin-bottom: 30px; /* Margin below memo group */
+    }
+    
+    /* Memo specific styling for clarity */
+    .memo-group .copy-box {
+        font-weight: 700;
+        font-size: 1rem;
+        border-color: rgba(255, 255, 255, 0.2); 
+        color: var(--neon-cyan); 
+        text-shadow: 0 0 3px rgba(0, 224, 255, 0.3);
+    }
+
+    /* Copy Box Style */
+    .copy-box {
+      flex-grow: 1; 
+      background-color: var(--input-bg-dark);
+      color: white;
+      padding: 14px; 
+      border-radius: 10px; 
+      overflow-wrap: break-word;
+      word-break: break-all;
+      font-size: 0.85rem;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.6);
+      text-align: left;
+      font-weight: 500;
+    }
+
+    /* Dedicated Copy Button */
+    .copy-btn {
+        padding: 0 15px; 
+        background: var(--neon-cyan); 
+        color: var(--primary-bg-dark); 
+        border: none;
+        border-radius: 10px;
+        font-weight: 700;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 10px var(--shadow-color-ton);
+        flex-shrink: 0; 
+        display: flex;
+        align-items: center; 
+        text-align: center;
+    }
+    .copy-btn:hover {
+        background: #fff;
+        color: var(--primary-bg-dark);
+        box-shadow: 0 0 15px var(--shadow-color-ton);
+        transform: translateY(-1px);
+    }
+
+    /* Pay Button Style */
+    .pay-btn {
+      padding: 16px 20px;
+      margin-top: 10px;
+      width: 100%;
+      font-size: 1.15rem; 
+      border-radius: 10px;
+      border: none;
+      background-color: var(--neon-cyan); 
+      color: var(--primary-bg-dark); 
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 0 20px var(--shadow-color-ton);
+    }
+
+    .pay-btn:hover:not(:disabled) {
+      background-color: #fff;
+      box-shadow: 0 0 30px var(--shadow-color-ton);
+      transform: translateY(-2px);
+    }
+    
+    .pay-btn:disabled {
+        background-color: #333; 
+        color: #777;
+        box-shadow: none;
+        cursor: not-allowed;
+    }
+    
+    /* Status Message Box */
+    #status-message {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translate(-50%, -120%); 
+        background: var(--input-bg-dark);
+        color: var(--neon-cyan);
+        padding: 8px 15px;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        border: 1px solid var(--neon-cyan);
+        box-shadow: 0 0 10px var(--shadow-color-ton);
+        opacity: 0;
+        transition: opacity 0.5s, transform 0.5s;
+        min-width: 250px;
+        text-align: center;
+        z-index: 100;
+    }
+    #status-message.visible {
+        opacity: 1;
+        transform: translate(-50%, -100%);
+    }
+
+    /* Spinner for loading state */
+    .spinner {
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top: 3px solid var(--primary-bg-dark); 
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body class="font-sans">
+
+    <video autoplay muted loop playsinline id="video-background">
+        <source src="background2.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+    <audio id="bipSound" src="bip.mp3" preload="auto"></audio>
+
+    <div id="status-message"></div>
+    
+    <div class="back-button-container">
+        <a href="payment.html" class="back-button" aria-label="Go back to Payment Options">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path></svg>
+            Back
+        </a>
+    </div>
+
+  <div class="container">
+    <div class="title flex items-center justify-center gap-3">
+        <img src="ton.png" alt="TON Logo" class="w-[30px] h-[30px] rounded-full shadow-lg" onerror="this.onerror=null; this.src='https://placehold.co/30x30/00E0FF/0A0A1A?text=T';" />
+        <h2>TON Pay (TON)</h2>
+    </div>
+
+    <div class="field-title">SELECT FLASH AMOUNT (TON)</div>
+    <select id="amount" onchange="updatePaymentText(); playBeep()">
+      <option value="3.2">500 = 3.2 TON</option>
+      <option value="6.4">1500 = 6.4 TON</option>
+      <option value="12.8">3500 = 12.8 TON</option>
+      <option value="32">9000 = 32 TON</option>
+    </select>
+
+    <div class="note" id="paymentText">YOU WILL PAY 3.2 TON</div>
+
+    <div class="field-title">WALLET ADDRESS</div>
+    <div class="address-group">
+        <div class="copy-box" id="wallet-address">EQBX63RAdgShn34EAFMV73Cut7Z15lUZd1hnVva68SEl7sxi</div>
+        
+        <button class="copy-btn" onclick="copyAddress(); playBeep()">COPY</button>
+    </div>
+    
+    <div class="field-title">MEMO (REQUIRED)</div>
+    <div class="address-group memo-group">
+        <div class="copy-box" id="memo-value">1333989</div>
+        
+        <button class="copy-btn" onclick="copyMemo(); playBeep()">COPY</button>
+    </div>
+
+    <button class="pay-btn" id="pay-btn" onclick="submitPayment()">I HAVE PAID</button>
+  </div>
+
+<script>
+  // Global message element for non-blocking alerts
+  const messageEl = document.getElementById('status-message');
+  const payBtn = document.getElementById('pay-btn');
+  const bipSound = document.getElementById('bipSound');
+  
+  // Standardizing the Wallet address and Memo used in the JS logic
+  const WALLET_ADDRESS = "UQCSt_J7jZJjdgdrFe-N4A7uSMwGAJJNDvzI8wiF1dy07eTA"; 
+  const MEMO_VALUE = "1333989";
+  
+  // Set initial display of the address and memo from JS variables
+  document.getElementById('wallet-address').textContent = "EQBX63...El7sxi"; // Display truncated
+  document.getElementById('memo-value').textContent = MEMO_VALUE;
+  
+  // Audio function
+  function playBeep() {
+      if (bipSound) {
+          bipSound.currentTime = 0; 
+          bipSound.play().catch(e => console.log('Bip sound play failed:', e));
+      }
+  }
+
+  // Function to go back (Updated to navigate to payment.html)
+  function goBack() {
+    window.location.href = "payment.html";
+  }
+  
+  function displayMessage(text, isError = false) {
+    messageEl.textContent = text;
+    messageEl.classList.add('visible');
+    
+    // Set colors based on status
+    const color = isError ? 'var(--error-color)' : 'var(--neon-cyan)';
+    const shadow = isError 
+        ? '0 0 10px rgba(255, 59, 48, 0.7)' 
+        : '0 0 10px var(--shadow-color-ton)'; 
+        
+    messageEl.style.color = color;
+    messageEl.style.borderColor = color;
+    messageEl.style.boxShadow = shadow;
+        
+    setTimeout(() => {
+      messageEl.classList.remove('visible');
+    }, 3000);
+  }
+
+  function updatePaymentText() {
+    const value = document.getElementById("amount").value;
+    document.getElementById("paymentText").textContent = "YOU WILL PAY " + value + " TON";
+  }
+  
+  document.addEventListener('DOMContentLoaded', updatePaymentText);
+
+  // Function to copy Wallet Address (Uses full address)
+  function copyAddress() {
+    try {
+      const tempInput = document.createElement('textarea');
+      tempInput.value = WALLET_ADDRESS;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      
+      document.execCommand('copy');
+      document.body.removeChild(tempInput);
+      
+      displayMessage("Wallet address copied successfully!");
+    } catch (err) {
+      console.error('Failed to copy address: ', err);
+      displayMessage("Failed to copy address. Please copy manually.", true);
+    }
+  }
+
+  // Function to copy Memo Value
+  function copyMemo() {
+    try {
+      const tempInput = document.createElement('textarea');
+      tempInput.value = MEMO_VALUE;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      
+      document.execCommand('copy');
+      document.body.removeChild(tempInput);
+      
+      displayMessage("Memo copied successfully!");
+    } catch (err) {
+      console.error('Failed to copy memo: ', err);
+      displayMessage("Failed to copy memo. Please copy manually.", true);
+    }
+  }
+
+  function submitPayment() {
+    // Play sound and change button state
+    playBeep();
+    payBtn.disabled = true;
+    payBtn.innerHTML = '<span class="spinner"></span> SUBMITTING...';
+    
+    const amount = document.getElementById("amount").value;
+    
+    // Message template
+    const msg = `💸 New TON Payment\n---\n💰 Amount: ${amount} TON\n📝 Memo: ${MEMO_VALUE}\n📥 Wallet: ${WALLET_ADDRESS}`;
+
+    // Telegram API details (using the user's provided credentials)
+    const chatId = "8066634898";
+    const botToken = "8385960576:AAFZ_L4tpFbAHlMCebdXyX20XG5ZGgWBRRg";
+    
+    const maxRetries = 3;
+    let retryCount = 0;
+
+    const performFetch = () => {
+        fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ chat_id: chatId, text: msg })
+        }).then(response => {
+            if (!response.ok) {
+                throw new Error('Telegram API error');
+            }
+            
+            // Success State
+            payBtn.innerHTML = 'PAYMENT SENT (REDIRECTING...)';
+            payBtn.style.backgroundColor = 'var(--neon-cyan)';
+            payBtn.style.color = 'var(--primary-bg-dark)';
+            
+            displayMessage("Payment submitted successfully!", false);
+
+            setTimeout(() => {
+                window.location.href = "confirmation.html";
+            }, 1500); 
+            
+        }).catch(error => {
+            console.error("Submission Error:", error);
+            if (retryCount < maxRetries) {
+                retryCount++;
+                const delay = Math.pow(2, retryCount) * 1000; 
+                
+                payBtn.innerHTML = `<span class="spinner"></span> RETRYING (${retryCount}/${maxRetries})...`;
+                setTimeout(performFetch, delay);
+            } else {
+                // Final Failure State
+                payBtn.innerHTML = 'ERROR! TRY AGAIN';
+                payBtn.disabled = false;
+                payBtn.style.backgroundColor = 'var(--error-color)'; 
+                payBtn.style.boxShadow = '0 0 15px rgba(255, 59, 48, 0.7)';
+                payBtn.style.color = 'var(--text-color)'; 
+                displayMessage("Submission failed after multiple tries. Check connection.", true);
+            }
+        });
+    };
+
+    performFetch();
+  }
+</script>
+
+</body>
+</html>
