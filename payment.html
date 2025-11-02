@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Choose Payment Method - iOS Dark Mode</title>
+  <title>Choose Payment Method - Fullscreen Video Background</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
 
@@ -16,8 +16,7 @@
       --text-color: #FFFFFF;
       --secondary-text-color: #98989a;
       --border-color: #38383a;
-      --accent-color: #0A84FF; /* لون أزرق iOS */
-      /* 💡 إضافة متغير جديد للون الأبيض لزر العودة */
+      --accent-color: #0A84FF; 
       --back-button-color: #FFFFFF; 
 
       /* Neon Colors (Unchanged for buttons) */
@@ -26,10 +25,6 @@
       --neon-cyan: #4DFFFF;
       --neon-green: #4DFF4D;
       --neon-yellow: #FFE04D;
-      
-      /* توهج الحاوية الرئيسية باللون الأبيض */
-      --white-glow: rgba(255, 255, 255, 0.4); 
-      --container-shadow-color: rgba(255, 255, 255, 0.05); 
     }
 
     * {
@@ -41,7 +36,6 @@
 
     /* Base Body Styling */
     body {
-      background-color: var(--primary-bg);
       color: var(--text-color);
       min-height: 100vh;
       display: flex;
@@ -50,42 +44,53 @@
       padding: 20px;
       overflow-x: hidden;
       padding-top: 0;
+      position: relative; 
     }
 
     body::before {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: -1;
-        background: radial-gradient(circle at 50% 50%, rgba(0, 224, 255, 0.03) 0%, transparent 70%);
-        animation: subtlePulse 15s infinite ease-in-out;
-    }
-    @keyframes subtlePulse {
-        0% { opacity: 1; }
-        50% { opacity: 0.7; }
-        100% { opacity: 1; }
+        content: none;
     }
 
+    /* --- Video Background Styling --- */
+    #video-background {
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      min-width: 100%;
+      min-height: 100%;
+      width: auto;
+      height: auto;
+      z-index: -100; 
+      background-size: cover;
+      /* 💡 التعديل الحاسم: هذا يضمن ملء الفيديو للشاشة بالكامل دون ترك فراغات */
+      object-fit: cover; 
+      filter: none; 
+      /* إزالة transform غير الضروري عند استخدام object-fit: cover */
+      /* transform: translateX(calc(100% - 100vw)) translateY(calc(100% - 100vh)); */
+    }
+    
+    /* 💡 إزالة طبقة التراكب بالكامل */
+    #video-overlay {
+        display: none; 
+    }
 
-    /* Container (iOS Card Style + White Glow) */
+    /* Container (iOS Card Style) */
     .container {
-      background: var(--secondary-bg); 
+      /* خلفية شبه شفافة مع تأثير الضبابية */
+      background: rgba(28, 28, 30, 0.7); 
       backdrop-filter: blur(8px); 
       border-radius: 12px;
       padding: 20px 30px; 
       max-width: 400px;
       width: 90vw; 
       box-shadow: 
-        0 4px 12px rgba(0, 0, 0, 0.5), 
-        0 0 25px var(--white-glow); 
+        0 4px 12px rgba(0, 0, 0, 0.7); 
       border: 1px solid var(--border-color);
       display: flex;
       flex-direction: column;
       gap: 15px; 
       position: relative; 
+      z-index: 10; 
     }
 
     /* --- Back Button Style (iOS Look) --- */
@@ -96,19 +101,19 @@
       left: 50%;
       transform: translateX(-50%);
       padding: 10px 20px;
-      padding-top: 4rem; 
+      padding-top: 3rem; 
       display: flex;
       justify-content: flex-start;
       align-items: center;
       z-index: 20;
-      background-color: var(--primary-bg); 
+      /* خلفية شفافة تماماً */
+      background-color: transparent; 
     }
 
     .back-button {
       background: transparent;
       border: none;
       cursor: pointer;
-      /* 💡 التعديل هنا: استخدام اللون الأبيض */
       color: var(--back-button-color); 
       font-size: 1.1rem;
       font-weight: 600;
@@ -116,6 +121,8 @@
       align-items: center;
       transition: opacity 0.2s;
       text-decoration: none;
+      /* إضافة ظل خفيف للنص لزيادة وضوحه فوق الفيديو */
+      text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
     }
     .back-button:hover {
         opacity: 0.7;
@@ -127,7 +134,6 @@
         height: 20px;
         margin-right: 5px;
         stroke-width: 2.5;
-        /* يتم تطبيق اللون الأبيض تلقائيًا من لون النص currentColor */
     }
 
 
@@ -175,45 +181,23 @@
     }
 
     /* Neon Color Overrides (Retained for glow/borders only) */
+    .trx { border-color: var(--neon-red); box-shadow: 0 0 15px var(--neon-red); }
+    .trx:hover { color: var(--neon-red); }
+    .ton { border-color: var(--neon-cyan); box-shadow: 0 0 15px var(--neon-cyan); }
+    .ton:hover { color: var(--neon-cyan); }
+    .usdt { border-color: var(--neon-green); box-shadow: 0 0 15px var(--neon-green); }
+    .usdt:hover { color: var(--neon-green); }
+    .card { border-color: var(--neon-yellow); box-shadow: 0 0 15px var(--neon-yellow); }
+    .card:hover { color: var(--neon-yellow); }
 
-    /* TRX */
-    .trx {
-      border-color: var(--neon-red);
-      box-shadow: 0 0 15px var(--neon-red);
-    }
-    .trx:hover {
-      color: var(--neon-red);
-    }
-
-    /* TON */
-    .ton {
-      border-color: var(--neon-cyan);
-      box-shadow: 0 0 15px var(--neon-cyan);
-    }
-    .ton:hover {
-      color: var(--neon-cyan);
-    }
-
-    /* USDT */
-    .usdt {
-      border-color: var(--neon-green);
-      box-shadow: 0 0 15px var(--neon-green);
-    }
-    .usdt:hover {
-      color: var(--neon-green);
-    }
-
-    /* Card */
-    .card {
-      border-color: var(--neon-yellow);
-      box-shadow: 0 0 15px var(--neon-yellow);
-    }
-    .card:hover {
-      color: var(--neon-yellow);
-    }
   </style>
 </head>
 <body class="font-sans">
+    
+    <video autoplay muted loop playsinline id="video-background">
+        <source src="background2.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
 
     <audio id="bipSound" src="bip.mp3" preload="auto"></audio>
     
@@ -240,7 +224,6 @@
       <img src="usdt.png" alt="USDT"> <span class="method-label">PAY WITH USDT</span>
     </div>
 
-    
   </div>
 
 <script>
