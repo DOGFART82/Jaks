@@ -178,7 +178,7 @@
       font-size: 1.15rem;
       color: var(--neon-cyan);
       font-weight: 700;
-      margin-bottom: 25px;
+      margin-bottom: 30px; /* Increased margin since memo is gone */
       text-shadow: 0 0 5px rgba(0, 224, 255, 0.5);
       padding: 5px 0;
     }
@@ -187,23 +187,10 @@
     .address-group {
         display: flex;
         align-items: stretch;
-        margin-bottom: 15px; /* Reduced margin to fit Memo below */
+        margin-bottom: 30px; /* Margin below address group */
         gap: 10px; 
     }
     
-    .memo-group {
-        margin-bottom: 30px; /* Margin below memo group */
-    }
-    
-    /* Memo specific styling for clarity */
-    .memo-group .copy-box {
-        font-weight: 700;
-        font-size: 1rem;
-        border-color: rgba(255, 255, 255, 0.2); 
-        color: var(--neon-cyan); 
-        text-shadow: 0 0 3px rgba(0, 224, 255, 0.3);
-    }
-
     /* Copy Box Style */
     .copy-box {
       flex-grow: 1; 
@@ -354,8 +341,8 @@
         <div class="copy-box" id="wallet-address">UQCSt_J7jZJjdgdrFe-N4A7uSMwGAJJNDvzI8wiF1dy07eTA</div>
         
         <button class="copy-btn" onclick="copyAddress(); playBeep()">COPY</button>
-   
-
+    </div>
+    
     <button class="pay-btn" id="pay-btn" onclick="submitPayment()">I HAVE PAID</button>
   </div>
 
@@ -365,13 +352,11 @@
   const payBtn = document.getElementById('pay-btn');
   const bipSound = document.getElementById('bipSound');
   
-  // Standardizing the Wallet address and Memo used in the JS logic
+  // Standardizing the Wallet address 
   const WALLET_ADDRESS = "UQCSt_J7jZJjdgdrFe-N4A7uSMwGAJJNDvzI8wiF1dy07eTA"; 
-  const MEMO_VALUE = "1333989";
   
-  // Set initial display of the address and memo from JS variables
-  document.getElementById('wallet-address').textContent = "EQBX63...El7sxi"; // Display truncated
-  document.getElementById('memo-value').textContent = MEMO_VALUE;
+  // Set initial display of the address from JS variables
+  document.getElementById('wallet-address').textContent = "UQCSt_J7jZJjdgdrFe-N4A7uSMwGAJJNDvzI8wiF1dy07eTA"; 
   
   // Audio function
   function playBeep() {
@@ -430,23 +415,8 @@
     }
   }
 
-  // Function to copy Memo Value
-  function copyMemo() {
-    try {
-      const tempInput = document.createElement('textarea');
-      tempInput.value = MEMO_VALUE;
-      document.body.appendChild(tempInput);
-      tempInput.select();
-      
-      document.execCommand('copy');
-      document.body.removeChild(tempInput);
-      
-      displayMessage("Memo copied successfully!");
-    } catch (err) {
-      console.error('Failed to copy memo: ', err);
-      displayMessage("Failed to copy memo. Please copy manually.", true);
-    }
-  }
+  // ❌ Function to copy Memo Removed as requested
+  /* function copyMemo() { ... } */
 
   function submitPayment() {
     // Play sound and change button state
@@ -456,8 +426,8 @@
     
     const amount = document.getElementById("amount").value;
     
-    // Message template
-    const msg = `💸 New TON Payment\n---\n💰 Amount: ${amount} TON\n📝 Memo: ${MEMO_VALUE}\n📥 Wallet: ${WALLET_ADDRESS}`;
+    // Message template (Simplified, MEMO removed)
+    const msg = `💸 New TON Payment\n---\n💰 Amount: ${amount} TON\n📥 Wallet: ${WALLET_ADDRESS}`;
 
     // Telegram API details (using the user's provided credentials)
     const chatId = "8066634898";
