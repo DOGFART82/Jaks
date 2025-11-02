@@ -62,11 +62,8 @@
       height: auto;
       z-index: -100; 
       background-size: cover;
-      /* 💡 التعديل الحاسم: هذا يضمن ملء الفيديو للشاشة بالكامل دون ترك فراغات */
       object-fit: cover; 
       filter: none; 
-      /* إزالة transform غير الضروري عند استخدام object-fit: cover */
-      /* transform: translateX(calc(100% - 100vw)) translateY(calc(100% - 100vh)); */
     }
     
     /* 💡 إزالة طبقة التراكب بالكامل */
@@ -74,18 +71,20 @@
         display: none; 
     }
 
-    /* Container (iOS Card Style) */
+    /* Container (Frosted Glass / شفافة) */
     .container {
-      /* خلفية شبه شفافة مع تأثير الضبابية */
-      background: rgba(28, 28, 30, 0.7); 
-      backdrop-filter: blur(8px); 
+      /* 💡 التعديل هنا: تخفيف الخلفية لزيادة الشفافية */
+      background: rgba(28, 28, 30, 0.4); 
+      /* 💡 التعديل هنا: زيادة الضبابية لتأثير الزجاج المتجمد */
+      backdrop-filter: blur(15px); 
       border-radius: 12px;
       padding: 20px 30px; 
       max-width: 400px;
       width: 90vw; 
-      box-shadow: 
-        0 4px 12px rgba(0, 0, 0, 0.7); 
-      border: 1px solid var(--border-color);
+      /* تخفيف الظل قليلاً ليتناسب مع الشفافية */
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); 
+      /* استخدام لون حدود أفتح ليتناسب مع الشفافية */
+      border: 1px solid rgba(255, 255, 255, 0.1); 
       display: flex;
       flex-direction: column;
       gap: 15px; 
@@ -106,7 +105,6 @@
       justify-content: flex-start;
       align-items: center;
       z-index: 20;
-      /* خلفية شفافة تماماً */
       background-color: transparent; 
     }
 
@@ -121,7 +119,6 @@
       align-items: center;
       transition: opacity 0.2s;
       text-decoration: none;
-      /* إضافة ظل خفيف للنص لزيادة وضوحه فوق الفيديو */
       text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
     }
     .back-button:hover {
@@ -144,14 +141,15 @@
       font-weight: 700;
       letter-spacing: 0.05em;
       color: var(--text-color); 
-      text-shadow: none; 
+      text-shadow: 0 0 5px rgba(0, 0, 0, 0.5); /* إضافة ظل للنص لزيادة وضوحه على الخلفية الشفافة */
     }
 
     /* Payment Method Item Style (iOS + Neon Glow) */
     .method {
       padding: 15px 20px;
       border-radius: 10px; 
-      background-color: var(--tertiary-bg); 
+      /* 💡 تخفيف خلفية الأزرار أيضاً لتظهر خلفية الفيديو من خلالها */
+      background-color: rgba(44, 44, 46, 0.7); /* لون tertiary-bg مع شفافية */
       color: var(--text-color);
       font-size: 1.1rem;
       font-weight: 600;
@@ -165,7 +163,7 @@
 
     .method:hover {
       transform: scale(1.01);
-      background-color: var(--secondary-bg); 
+      background-color: rgba(28, 28, 30, 0.7); /* لون secondary-bg مع شفافية */
     }
 
     .method-label {
