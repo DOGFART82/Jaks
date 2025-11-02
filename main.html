@@ -42,7 +42,11 @@
   /* إخفاء شريط التمرير */
   body::-webkit-scrollbar { display: none; }
   body { -ms-overflow-style: none; scrollbar-width: none; }
-  
+
+
+  /* --- 💡 NEW: WELCOME MODAL STYLES (Kept for completeness but unused) --- */
+  /* This section is now unused since the modal HTML is removed. */
+
   /* --- 2. TOP NAVIGATION BAR --- */
   .top-nav {
     width: 95vw; 
@@ -66,39 +70,40 @@
     height: 24px;
     fill: var(--primary-accent); 
   }
-  
-  /* --- NEW LIVE CHAT BUTTON STYLE --- */
-  .live-chat-button {
-      /* إزالة النمط القديم للقائمة المنسدلة (dropdown) */
-      padding: 8px 15px; /* مسافة داخلية جيدة */
-      background-color: var(--success-color); /* استخدام اللون الأخضر للـ LIVE */
-      color: var(--dark-bg); /* نص داكن على خلفية فاتحة */
+
+  /* 💡 LIVE CHAT BUTTON (Dropdown Trigger) STYLE */
+  .live-chat-trigger {
+      padding: 8px 15px; 
+      background-color: var(--success-color); 
+      color: var(--dark-bg); 
       border-radius: 12px;
       font-weight: 700;
       font-size: 0.85rem;
-      text-decoration: none; /* إزالة خطوط الروابط */
-      box-shadow: 0 4px 15px rgba(52, 199, 89, 0.5); /* ظل أخضر متوهج */
+      text-decoration: none;
+      box-shadow: 0 4px 15px rgba(52, 199, 89, 0.5);
       display: flex;
       align-items: center;
       cursor: pointer;
-      line-height: 1; /* ضبط ارتفاع الخط */
+      line-height: 1;
       transform: scale(1);
+      border: none;
+      outline: none;
   }
-  .live-chat-button:hover, .live-chat-button:focus {
-      background-color: #40d663; /* تفتيح بسيط عند التحويم */
+  .live-chat-trigger:hover, .live-chat-trigger:focus {
+      background-color: #40d663; 
       box-shadow: 0 4px 20px rgba(52, 199, 89, 0.8);
       transform: scale(1.02);
   }
   
-  .live-chat-button .live-indicator {
+  .live-chat-trigger .live-indicator {
       display: inline-block;
       width: 8px;
       height: 8px;
-      background-color: var(--error-color); /* نقطة حمراء كدلالة على النشاط */
+      background-color: var(--error-color); 
       border-radius: 50%;
       margin-left: 5px;
       margin-right: -2px;
-      animation: pulse 1.5s infinite; /* نبض خفيف */
+      animation: pulse 1.5s infinite; 
   }
   
   @keyframes pulse {
@@ -108,13 +113,39 @@
   }
 
 
-  /* القائمة المنسدلة (Dropdown Menu) - تم تغييرها بالكامل إلى زر */
-  /* تم إبقاء هذا النمط فارغًا أو إزالته حيث لم نعد بحاجة إليه */
-  .dropdown, .dropdown-content {
-      /* لن نحتاج إلى هذه الأنماط بعد الآن */
-      display: none !important; 
+  /* Dropdown Menu (Right side) */
+  .dropdown {
+      position: relative;
+      display: inline-block;
   }
-  
+  .dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 45px; 
+      background-color: var(--card-bg); 
+      min-width: 180px;
+      border-radius: 10px;
+      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.5);
+      z-index: 20; 
+      overflow: hidden;
+  }
+  .dropdown-content a {
+      color: var(--primary-accent);
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 500;
+  }
+  .dropdown-content a:hover, .dropdown-content a:focus {
+      background-color: #333; 
+  }
+  /* Class to show the dropdown menu */
+  .dropdown-show .dropdown-content {
+      display: block;
+  }
+
   /* --- 3. FLOATING ACTION BUTTON (FAB) --- */
   .fab-container {
       position: fixed;
@@ -372,12 +403,19 @@
     </svg>
   </a>
 
-  <a href="chat.html" class="live-chat-button" aria-label="Live Chat" onclick="playBeep()">
-      LIVE
-      <span class="live-indicator"></span>
-  </a>
-
+  <div class="dropdown" id="myDropdownContainer">
+    <button class="live-chat-trigger" onclick="toggleDropdown(); playBeep();" aria-haspopup="true" aria-expanded="false" aria-label="Menu">
+        LIVE
+        <span class="live-indicator"></span>
+    </button>
+    
+    <div class="dropdown-content" id="myDropdown">
+      <a href="chat.html" onclick="playBeep()">Live Chat</a>
+      <a href="platforms.html" onclick="playBeep()">Supported Platforms</a>
+      <a href="history.html" onclick="playBeep()">History</a>
+    </div>
   </div>
+</div>
 
 <div class="app-header">
     <img src="logo.png" alt="Grok 2.0 Logo" onerror="this.onerror=null; this.src='https://placehold.co/40x40/FFFFFF/000000?text=G';" />
@@ -431,43 +469,83 @@
 
 
 <script>
-  // --- AUDIO FEEDBACK IMPLEMENTATION (bip.mp3 Sound) ---
+  // --- AUDIO FEEDBACK IMPLEMENTATION (bip.mp3 Sound and space.mp3 Music) ---
   let audioBeep = null;
+  let audioSpaceMusic = null;
+  let hasPlayedMusic = false; // New flag to control music playback
 
   function initializeAudio() {
     if (!audioBeep) {
       try {
         audioBeep = new Audio('bip.mp3');
         audioBeep.preload = 'auto'; 
-        audioBeep.onerror = () => {
-            console.error("Failed to load bip.mp3. Check file path.");
-        };
-        console.log("Audio element initialized for bip.mp3.");
+        audioBeep.onerror = () => console.error("Failed to load bip.mp3.");
       } catch (e) {
-        console.error("Audio element creation failed:", e);
+        console.error("Audio element (bip) creation failed:", e);
       }
     }
-    document.body.removeEventListener('click', initializeAudio, { once: true });
+    
+    // Initialize space music only once
+    if (!audioSpaceMusic) {
+      try {
+        audioSpaceMusic = new Audio('space.mp3');
+        audioSpaceMusic.loop = true; // Set to loop
+        audioSpaceMusic.volume = 0.4; // Set a lower volume for background music
+        audioSpaceMusic.preload = 'auto';
+        audioSpaceMusic.onerror = () => console.error("Failed to load space.mp3.");
+      } catch (e) {
+        console.error("Audio element (space) creation failed:", e);
+      }
+    }
   }
+  
+  // Call initialize on page load
+  document.addEventListener('DOMContentLoaded', initializeAudio);
 
   function playBeep() {
-    if (!audioBeep) {
-        initializeAudio();
+    // Attempt to play music on the first beep (first user interaction)
+    if (!hasPlayedMusic) {
+        playSpaceMusic();
     }
     
     if (audioBeep) {
       audioBeep.currentTime = 0; 
       audioBeep.play().catch(error => {
-          console.error("Audio playback failed (usually due to lack of initial user interaction):", error);
+          console.error("Beep playback failed:", error);
       });
     }
   }
   
-  document.body.addEventListener('click', initializeAudio, { once: true });
+  function playSpaceMusic() {
+    if (audioSpaceMusic && !hasPlayedMusic) {
+        // Attempt to play only if not already playing
+        audioSpaceMusic.play().then(() => {
+            hasPlayedMusic = true; // Success, set flag
+        }).catch(error => {
+            console.error("Space music playback failed (user interaction needed):", error);
+        });
+    }
+  }
 
+  // NOTE: The closeModalAndPlayMusic function has been removed.
 
-  // **NOTE:** The old Dropdown functions (toggleDropdown, window.onclick) have been removed
-  // as the dropdown was replaced by a single button.
+  // JavaScript for Dropdown Functionality
+  function toggleDropdown() {
+      document.getElementById("myDropdownContainer").classList.toggle("dropdown-show");
+  }
+
+  // Close the dropdown if the user clicks outside of it
+  window.onclick = function(event) {
+    if (!event.target.closest('.dropdown')) {
+      const dropdowns = document.getElementsByClassName("dropdown");
+      for (let i = 0; i < dropdowns.length; i++) {
+        const openDropdown = dropdowns[i];
+        if (openDropdown.classList.contains('dropdown-show')) {
+          openDropdown.classList.remove('dropdown-show');
+        }
+      }
+    }
+  }
 
 
   // Global flag to prevent re-submission while loading
