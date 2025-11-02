@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Submission (iOS Glass)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* 💡 iOS Dark Mode & Neon Colors (Focusing on Red/TRX) */
+        :root {
+            --primary-bg: #000000; 
+            --secondary-bg: #1C1C1E; 
+            --tertiary-bg: #2C2C2E; 
+            --text-color: #FFFFFF;
+            --secondary-text-color: #98989a;
+            --border-color: #38383a;
+            --back-button-color: #FFFFFF; 
+            
+            /* Neon Colors - Focusing on Red (Matching original) */
+            --neon-red: #FF3B30; /* iOS Red */
+            --neon-shadow: rgba(255, 59, 48, 0.7); 
+            --input-bg-dark: #1F1F1F; 
+            --error-color: #FF3B30;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0; 
+            padding: 0; 
+            /* استخدام خط Cairo كما في الكود الأصلي */
+            font-family: 'Cairo', sans-serif, 'Inter', sans-serif, 'Arial', sans-serif;
+            transition: all 0.3s ease-in-out; 
+        }
+
+        /* Base Body Styling */
+        body {
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center; 
+            padding: 20px;
+            overflow-x: hidden;
+            /* 💡 Space for the lowered back button */
+            padding-top: 5rem; 
+            position: relative; 
+        }
+
+        /* --- Video Background Styling (ADDED) --- */
+        #video-background {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: -100; 
+            object-fit: cover; 
+            filter: none; 
+        }
+
+        /* --- Back Button Style (Fixed to 3rem) --- */
+        .back-button-container {
+            width: 100%;
+            position: fixed; 
+            /* 💡 تطبيق التعديل: إنزال زر العودة */
+            top: 3rem; 
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            padding-top: 1rem; 
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            z-index: 20;
+            background-color: transparent; 
+        }
+
+        .back-button {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: var(--back-button-color); 
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            transition: opacity 0.2s;
+            text-decoration: none;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+            padding-left: 10px; 
+        }
+        .back-button:hover {
+            opacity: 0.7;
+        }
+        .back-button svg {
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+            stroke-width: 2.5;
+        }
+
+        /* Container (Frosted Glass / شفافة) - 350px width */
+        .container {
+            /* 💡 تطبيق تأثير الزجاج الشفاف */
+            background: rgba(28, 28, 30, 0.4); 
+            backdrop-filter: blur(15px); 
+            border-radius: 16px; /* Increased border radius for iOS feel */
+            padding: 25px; 
+            max-width: 350px; /* Applied size */
+            width: 90vw; 
+            /* تطبيق حدود النيون الأحمر وظله */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 15px var(--neon-shadow); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            position: relative; 
+            z-index: 10; 
+        }
+
+        .title {
+            color: var(--neon-red);
+            font-size: 1.7rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            text-shadow: 0 0 8px var(--neon-shadow);
+            letter-spacing: 0.05em;
+        }
+
+        .upload-btn {
+            background-color: var(--neon-red);
+            color: var(--primary-bg);
+            padding: 0.75rem 2rem;
+            border-radius: 9999px;
+            font-weight: 700;
+            transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            display: inline-block;
+            box-shadow: 0 0 15px rgba(255, 59, 48, 0.4);
+        }
+
+        .upload-btn:hover {
+            background-color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px var(--neon-shadow);
+        }
+        
+        .submit-btn {
+            background-color: var(--neon-red);
+            color: var(--primary-bg);
+            padding: 1rem 2rem;
+            border-radius: 12px; /* Square button with rounded corners */
+            font-weight: 800;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            box-shadow: 0 0 18px var(--neon-shadow);
+        }
+        
+        .submit-btn:hover {
+            background-color: #fff;
+            color: var(--primary-bg);
+            box-shadow: 0 0 25px var(--neon-shadow);
+            transform: translateY(-2px);
+        }
+        
+        .submit-btn:disabled {
+            background-color: #333; 
+            color: #777;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        /* Loader inside modal */
+        .loader {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid var(--neon-red);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Modal Overlays and Content */
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-content {
+            background: rgba(28, 28, 30, 0.9); /* Tertiary BG with transparency */
+            border-radius: 16px;
+            border: 1px solid var(--neon-red);
+            box-shadow: 0 0 30px var(--neon-shadow);
+        }
+        
+        .decline-modal .modal-content {
+            border-color: var(--error-color);
+            box-shadow: 0 0 30px rgba(255, 59, 48, 0.9);
+        }
+        
+        .modal-content h2 {
+            color: var(--error-color);
+        }
+
+        .copy-message {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--neon-red);
+            color: var(--primary-bg);
+            padding: 8px 16px;
+            border-radius: 9999px;
+            z-index: 100;
+            transition: opacity 0.5s ease-in-out;
+            opacity: 0;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="font-sans">
+
+    <video autoplay muted loop playsinline id="video-background">
+        <source src="background2.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+    
+    <div class="back-button-container">
+        <a href="payment.html" class="back-button" aria-label="Go back to Payment Selection">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path></svg>
+            Back
+        </a>
+    </div>
+
+    <div class="container">
+        <div class="title">UPLOAD PAYMENT PROOF</div>
+        <div class="flex flex-col items-center">
+            <label for="payment-proof-file" class="upload-btn mb-4">
+                Choose Screenshot / PDF
+            </label>
+            <input type="file" id="payment-proof-file" class="hidden" accept="image/*,.pdf">
+            <span id="file-name" class="text-sm text-secondary-text-color mb-8 text-center">No file selected.</span>
+        </div>
+
+        <button id="submit-btn" class="submit-btn w-full">
+            SUBMIT ORDER
+        </button>
+    </div>
+
+    <div id="loading-modal" class="fixed inset-0 hidden items-center justify-center z-50 modal-overlay p-4">
+        <div class="modal-content p-8 flex flex-col items-center max-w-xs">
+            <div class="loader mb-4"></div>
+            <p id="loading-text" class="text-white font-bold text-center">Checking payment txid</p>
+        </div>
+    </div>
+
+    <div id="decline-modal" class="fixed inset-0 hidden items-center justify-center z-50 modal-overlay p-4 decline-modal">
+        <div class="modal-content p-8 text-center max-w-xs">
+            <h2 class="text-2xl font-bold mb-4 text-error-color">PAYMENT DECLINED</h2>
+            <p class="text-sm text-secondary-text-color">
+                <span class="text-white font-bold">WARNING:</span> SENDING FAKE INFORMATION WILL BLOCK YOUR ACCOUNT FROM OUR SYSTEM.
+            </p>
+        </div>
+    </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const BOT_TOKEN = "8385960576:AAFZ_L4tpFbAHlMCebdXyX20XG5ZGgWBRRg";
+        const CHAT_ID = "8066634898";
+        const fileInput = document.getElementById('payment-proof-file');
+        const fileNameSpan = document.getElementById('file-name');
+        const submitBtn = document.getElementById('submit-btn');
+        const loadingModal = document.getElementById('loading-modal');
+        const loadingText = document.getElementById('loading-text');
+        const declineModal = document.getElementById('decline-modal');
+        
+        // Define the transition messages
+        const loadingMessages = [
+            "Checking payment txid",
+            "Checking balance",
+            "Connecting to server data"
+        ];
+        let messageIndex = 0;
+        let intervalId = null;
+
+        // --- File Input Change Handler ---
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                // Display the name, or truncate if too long
+                const fileName = fileInput.files[0].name;
+                fileNameSpan.textContent = fileName.length > 25 ? fileName.substring(0, 10) + '...' + fileName.substring(fileName.length - 10) : fileName;
+                fileNameSpan.style.color = 'var(--text-color)';
+                fileNameSpan.classList.add('font-bold');
+            } else {
+                fileNameSpan.textContent = 'No file selected.';
+                fileNameSpan.style.color = 'var(--secondary-text-color)';
+                fileNameSpan.classList.remove('font-bold');
+            }
+        });
+
+        // Function to show transient message (for warnings/success)
+        function showTransientMessage(text, isError = false) {
+            const message = document.createElement('div');
+            message.textContent = text;
+            message.classList.add('copy-message');
+            
+            if(isError) {
+                message.style.backgroundColor = 'var(--error-color)';
+                message.style.boxShadow = '0 0 10px rgba(255, 59, 48, 0.7)';
+            } else {
+                message.style.backgroundColor = 'var(--neon-red)';
+                message.style.boxShadow = '0 0 10px var(--neon-shadow)';
+            }
+            
+            document.body.appendChild(message);
+            setTimeout(() => { message.style.opacity = 1; }, 10);
+            setTimeout(() => {
+                message.style.opacity = 0;
+                setTimeout(() => message.remove(), 500);
+            }, 3000); 
+        }
+
+        // --- Submission Handler ---
+        submitBtn.addEventListener('click', async () => {
+            if (fileInput.files.length === 0) {
+                showTransientMessage("Please select a file first!", true);
+                return;
+            }
+
+            // 1. Show loading modal
+            loadingModal.classList.remove('hidden');
+            loadingModal.classList.add('flex');
+            
+            // 2. Start changing loading messages
+            messageIndex = 0;
+            loadingText.textContent = loadingMessages[messageIndex];
+            intervalId = setInterval(() => {
+                messageIndex = (messageIndex + 1) % loadingMessages.length;
+                loadingText.textContent = loadingMessages[messageIndex];
+            }, 2000); 
+
+            // 3. Prepare Telegram Data
+            const formData = new FormData();
+            formData.append('chat_id', CHAT_ID);
+            
+            // Use sendDocument for better file type support
+            const file = fileInput.files[0];
+            const telegramMethod = file.type.startsWith('image/') ? 'sendPhoto' : 'sendDocument';
+            
+            formData.append(file.type.startsWith('image/') ? 'photo' : 'document', file);
+            formData.append('caption', `⚠️ Payment Proof Submitted ⚠️\n\n🕒 Date: ${new Date().toLocaleString()}\n📁 File: ${file.name}\n\n🚨 *A user is waiting for confirmation!*`);
+
+
+            // 4. Send to Telegram (Fire and forget, but handle basic error)
+            try {
+                const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/${telegramMethod}`, {
+                    method: "POST",
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    console.error("Telegram API Error:", await response.text());
+                } else {
+                    console.log("Proof sent to Telegram successfully.");
+                }
+
+            } catch (error) {
+                console.error("Failed to send to Telegram:", error);
+            }
+            
+            // 5. Show Decline Modal after 6 seconds (as per original logic)
+            setTimeout(() => {
+                clearInterval(intervalId);
+                
+                // Hide loading, show decline
+                loadingModal.classList.remove('flex');
+                loadingModal.classList.add('hidden');
+                
+                declineModal.classList.remove('hidden');
+                declineModal.classList.add('flex');
+                
+                // Optional: Automatically close decline modal after a few seconds
+                setTimeout(() => {
+                    declineModal.classList.remove('flex');
+                    declineModal.classList.add('hidden');
+                    // Optional: Redirect back to payment.html
+                    // window.location.href = "payment.html"; 
+                }, 5000); 
+                
+            }, 6000); 
+        });
+    });
+</script>
+
+</body>
+</html>
