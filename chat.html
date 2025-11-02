@@ -10,14 +10,14 @@
     <style>
         /* iOS Dark Mode Colors (System Colors) */
         :root {
-            --primary-bg: #000000; /* خلفية سوداء نقية */
-            --secondary-bg: #1C1C1E; /* لون الخلفية الرئيسية (مثل البطاقات) */
-            --tertiary-bg: #2C2C2E; /* خلفية حقل الإدخال */
+            --primary-bg: #000000;
+            --secondary-bg: #1C1C1E;
+            --tertiary-bg: #2C2C2E;
             --text-color: #FFFFFF;
-            --accent-color: #0A84FF; /* iOS Blue */
-            --my-message-bg: #34C759; /* iOS System Green */
-            --other-message-bg: #3A3A3C; /* لون رمادي لرسائل الطرف الآخر */
-            --info-color: #FF3B30; /* iOS System Red */
+            --accent-color: #0A84FF;
+            --my-message-bg: #34C759;
+            --other-message-bg: #3A3A3C;
+            --info-color: #FF3B30;
             --border-color: #38383a;
         }
         
@@ -27,7 +27,6 @@
             color: var(--text-color);
         }
         
-        /* Box-shadow for iOS-like elements */
         .ios-shadow {
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
         }
@@ -43,10 +42,15 @@
             overflow: hidden;
         }
         
-        /* Header */
+        /* Header & 1cm Top Padding */
         .chat-header {
             background-color: var(--secondary-bg);
             border-bottom: 1px solid var(--border-color);
+            padding-top: 1cm; /* المسافة المطلوبة */
+            padding-bottom: 1rem; 
+            padding-left: 1rem;
+            padding-right: 1rem;
+            position: relative; /* مهم لتحديد موضع القائمة المنسدلة */
         }
         
         .messages-window {
@@ -56,142 +60,85 @@
             padding: 0.5rem 1rem;
         }
 
-        /* Message Bubbles - iMessage Style */
-        .message-row {
-            display: flex;
-            margin-bottom: 0.5rem;
-            align-items: flex-start; /* محاذاة الرسالة إلى الأعلى (الرأس) */
+        /* Message Bubbles (Simplified for brevity) */
+        .message-row { display: flex; margin-bottom: 0.5rem; align-items: flex-start; }
+        .message-row.my-message-row { justify-content: flex-end; margin-left: 15%; }
+        .message-row.other-message-row { justify-content: flex-start; margin-right: 15%; }
+        .message-bubble { 
+            padding: 0.5rem 0.75rem; max-width: 100%; line-height: 1.35; 
+            border-radius: 1.2rem; box-shadow: 0 0 1px rgba(0, 0, 0, 0.1); 
+        }
+        .my-message-row .message-bubble { background-color: var(--my-message-bg); color: #111111; border-bottom-right-radius: 0.35rem; }
+        .other-message-row .message-bubble { background-color: var(--other-message-bg); color: var(--text-color); border-bottom-left-radius: 0.35rem; }
+        .message-avatar { width: 2rem; height: 2rem; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+        .my-message-row .message-avatar { display: none; }
+        .message-username { font-size: 0.75em; font-weight: 600; margin-bottom: 2px; display: block; }
+        .message-bubble .time { font-size: 0.6em; text-align: right; margin-top: 0.25rem; color: rgba(255, 255, 255, 0.7); }
+        .my-message-row .message-bubble .time { color: rgba(0, 0, 0, 0.5); }
+        
+        /* Input Area (Simplified for brevity) */
+        .input-container { background-color: var(--secondary-bg); border-top: 1px solid var(--border-color); padding: 0.5rem; }
+        #message-input { background-color: var(--tertiary-bg); border: none; border-radius: 1.5rem; padding: 0.6rem 1rem; color: var(--text-color); transition: all 0.2s; }
+        #send-button { background-color: transparent !important; padding: 0; width: 2.2rem; height: 2.2rem; }
+        
+        /* Modal Styles (VIP Modal) */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); display: none; justify-content: center;
+            align-items: center; z-index: 1000;
         }
 
-        .message-row.my-message-row {
-            justify-content: flex-end;
-            margin-left: 15%; /* مساحة أكبر لرسائل الطرف الآخر */
+        .modal-content {
+            background-color: var(--secondary-bg); border-radius: 14px; padding: 1.5rem;
+            width: 90%; max-width: 300px; text-align: center;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5); animation: fadeIn 0.2s ease-out;
         }
         
-        .message-row.other-message-row {
-            justify-content: flex-start;
-            margin-right: 15%; /* مساحة أكبر لرسائلي */
-        }
+        .modal-title { color: var(--info-color); font-weight: 700; font-size: 1.25rem; margin-bottom: 0.5rem; }
+        .modal-body { color: var(--text-color); margin-bottom: 1rem; }
+        .modal-button { background-color: var(--accent-color); color: white; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; display: block; width: 100%; }
 
-        .message-bubble {
-            padding: 0.5rem 0.75rem;
-            max-width: 100%;
-            line-height: 1.35;
-            font-size: 0.95em;
-            color: var(--text-color);
-            /* حواف مستديرة جداً */
-            border-radius: 1.2rem; 
-            box-shadow: 0 0 1px rgba(0, 0, 0, 0.1); 
-        }
-
-        .my-message-row .message-bubble {
-            background-color: var(--my-message-bg);
-            color: var(--text-color); /* الأبيض أو الأسود */
-            /* جعل الزاوية السفلية اليمين أقل استدارة */
-            border-bottom-right-radius: 0.35rem; 
-            color: #111111; /* لجعل النص أسود على الأخضر */
-        }
-
-        .other-message-row .message-bubble {
-            background-color: var(--other-message-bg);
-            color: var(--text-color);
-            /* جعل الزاوية السفلية اليسار أقل استدارة */
-            border-bottom-left-radius: 0.35rem; 
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         
-        .message-avatar {
-            /* تعديل حجم الصورة الرمزية */
-            width: 2rem; 
-            height: 2rem;
-            border-radius: 50%;
-            flex-shrink: 0;
-            margin-top: 5px; /* لتكون محاذية لأعلى الفقاعة */
-        }
-        
-        /* إخفاء الصورة الرمزية لرسائل المرسل */
-        .my-message-row .message-avatar {
-            display: none;
-        }
-        
-        .message-username {
-            font-size: 0.75em;
-            font-weight: 600; /* شبه عريض */
-            color: #999;
-            margin-bottom: 2px;
-            display: block;
-        }
-
-        .my-message-row .message-username {
-            color: #000; /* لجعل الاسم أسود على الأخضر */
-        }
-
-        .message-bubble .time {
-            display: block;
-            font-size: 0.6em;
-            font-weight: 400;
-            color: rgba(255, 255, 255, 0.7);
-            text-align: right;
-            margin-top: 0.25rem;
-        }
-
-        .my-message-row .message-bubble .time {
-             color: rgba(0, 0, 0, 0.5); /* رمادي فاتح على الأخضر */
-        }
-        
-        /* Input Area and Send Button */
-        .input-container {
+        /* Dropdown Menu Style (More Button Dropdown) */
+        .more-dropdown {
+            position: absolute;
+            /* يتم تعديل الموضع ليتم إنزاله بمقدار ارتفاع الـ Header + 1cm لتجنب التداخل */
+            top: 2rem; /* تم تعديله ليكون أسفل الشريط العلوي */
+            right: 1rem;
             background-color: var(--secondary-bg);
-            border-top: 1px solid var(--border-color);
-            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            width: 230px;
+            padding: 0.5rem 0;
+            z-index: 1010;
+            display: none; 
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
         }
         
-        #message-input {
-            background-color: var(--tertiary-bg);
-            border: none; /* إزالة الحدود */
-            border-radius: 1.5rem; /* لجعل حقل الإدخال دائرياً */
-            padding: 0.6rem 1rem;
+        .more-dropdown.open {
+            display: block;
+            opacity: 1;
+            transform: translateY(0); /* لا يوجد تحريك بعد الفتح */
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1rem;
             color: var(--text-color);
-            transition: all 0.2s;
+            font-size: 0.95rem;
+            cursor: default; /* لا أريد جعله زر قابل للنقر */
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
         
-        #message-input:focus {
-            box-shadow: 0 0 0 2px var(--accent-color); /* تأثير تركيز iOS */
-        }
-
-        #send-button {
-            background-color: transparent !important; 
-            padding: 0;
-            /* زيادة حجم زر الإرسال قليلاً ليتناسب مع الصورة */
-            width: 2.2rem; 
-            height: 2.2rem;
-        }
-        
-        #send-button img {
-            width: 100%; 
-            height: 100%;
-            object-fit: cover; 
-            border-radius: 50%; 
-        }
-
-        #send-button:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-        
-        /* Active Count Style (similar to iOS system text) */
-        #active-count {
+        .active-users-text {
             color: var(--accent-color);
             font-weight: 700;
-        }
-        
-        .limit-info {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 0.75rem;
-            margin-top: 0.5rem;
-        }
-
-        .limit-info #message-counter {
-            color: var(--info-color);
+            margin-left: 0.5rem;
         }
     </style>
     
@@ -203,19 +150,40 @@
 
     <div class="chat-container">
 
-        <header class="chat-header w-full p-4 flex justify-between items-center sticky top-0 z-10"> 
+        <header class="chat-header w-full flex justify-between items-center sticky top-0 z-10"> 
             
             <a id="backButton" href="main.html" class="flex items-center text-white hover:opacity-80 transition duration-150 font-semibold p-1 -ml-1">
                 <svg class="w-6 h-6 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
                 <span class="text-sm" style="color: #FFFFFF;">Back</span> 
             </a>
             
-            <div class="flex items-center text-sm">
-                <svg class="w-4 h-4 mr-1 fill-current" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color: var(--accent-color);"><path d="M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-width="2"/><path d="M12 14C8.13401 14 5 17.134 5 21H19C19 17.134 15.866 14 12 14Z" stroke="currentColor" stroke-width="2"/></svg>
-                <span id="active-count" class="font-bold">0</span>
-                <span class="ml-1 text-neutral-400">Active Now</span>
+            <div class="flex flex-col items-center">
+                <h1 class="text-lg font-semibold">Support Bot</h1>
+                <div class="flex items-center text-xs text-neutral-400">
+                     <svg class="w-3 h-3 mr-1 fill-current" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color: var(--accent-color);"><path d="M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-width="2"/><path d="M12 14C8.13401 14 5 17.134 5 21H19C19 17.134 15.866 14 12 14Z" stroke="currentColor" stroke-width="2"/></svg>
+                    <span id="active-count" class="font-bold">0</span>
+                    <span class="ml-0.5">Active Now</span>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-3" style="color: var(--accent-color);">
+                
+                <button id="callButton" class="p-1 hover:opacity-70 transition duration-150">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                </button>
+                
+                <button id="moreButton" class="p-1 hover:opacity-70 transition duration-150">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
+                </button>
             </div>
         </header>
+        
+        <div id="moreDropdown" class="more-dropdown">
+            <div class="dropdown-item">
+                Voice Call Participants
+                <span class="active-users-text">+100</span>
+            </div>
+        </div>
 
         <div id="messages-window" class="messages-window flex flex-col space-y-2">
             </div>
@@ -237,6 +205,15 @@
             </div>
         </div>
     </div>
+    
+    <div id="callModal" class="modal-overlay">
+        <div class="modal-content">
+            <p class="modal-title">VIP Access Required ⚠️</p>
+            <p class="modal-body">This feature is reserved **ONLY FOR VIP MEMBERS**.</p>
+            <button id="closeModalButton" class="modal-button">Close</button>
+        </div>
+    </div>
+
 
     <script>
         // JavaScript Logic
@@ -248,28 +225,79 @@
             const sendSound = document.getElementById('send-sound'); 
             const backButton = document.getElementById('backButton');
             const backSound = document.getElementById('backSound');
+            
+            // عناصر النافذة المنبثقة الجديدة
+            const callButton = document.getElementById('callButton');
+            const callModal = document.getElementById('callModal');
+            const closeModalButton = document.getElementById('closeModalButton');
+            
+            // عناصر القائمة المنسدلة الجديدة
+            const moreButton = document.getElementById('moreButton');
+            const moreDropdown = document.getElementById('moreDropdown');
+            
+            const STORAGE_KEY = 'chat_message_history_usdt';
+            const RATE_LIMIT_COUNT_KEY = 'rate_limit_count';
+            const RATE_LIMIT_START_TIME_KEY = 'rate_limit_start_time';
+            let messageHistory = [];
+            let messageCount = 0; 
+            let rateLimitStartTime = null; 
+            const MAX_MESSAGES = 2; 
+            const RESET_TIME_MS = 10 * 60 * 1000; 
 
-            // --- AUDIO UTILITY (Unchanged) ---
+            // --- AUDIO UTILITY ---
             function playSound(audioElement) {
                 if (audioElement) {
                     audioElement.currentTime = 0;
                     audioElement.play().catch(e => console.log('Audio play blocked:', e));
                 }
             }
-
-            // --- PERSISTENCE SETUP (Unchanged) ---
-            const STORAGE_KEY = 'chat_message_history_usdt';
-            const RATE_LIMIT_COUNT_KEY = 'rate_limit_count';
-            const RATE_LIMIT_START_TIME_KEY = 'rate_limit_start_time';
-            let messageHistory = [];
             
-            // --- MESSAGE LIMIT CONSTANTS (Unchanged) ---
-            let messageCount = 0; 
-            let rateLimitStartTime = null; 
-            const MAX_MESSAGES = 2; 
-            const RESET_TIME_MS = 10 * 60 * 1000; 
+            // --- Modal Functions (Call Button) ---
+            function openModal() {
+                closeDropdown(); // إغلاق القائمة المنسدلة عند فتح الـ Modal
+                callModal.style.display = 'flex';
+            }
 
-            // Utility functions (Unchanged)
+            function closeModal() {
+                callModal.style.display = 'none';
+            }
+            
+            // --- Dropdown Functions (More Button) ---
+            function toggleDropdown() {
+                closeModal(); // إغلاق الـ Modal عند فتح القائمة المنسدلة
+                moreDropdown.classList.toggle('open');
+            }
+
+            function closeDropdown() {
+                moreDropdown.classList.remove('open');
+            }
+
+            // --- Event Listeners for Call Button ---
+            callButton.addEventListener('click', openModal);
+            closeModalButton.addEventListener('click', closeModal);
+            callModal.addEventListener('click', (e) => {
+                if (e.target.id === 'callModal') {
+                    closeModal(); // إغلاق عند الضغط خارج المحتوى
+                }
+            });
+            
+            // --- Event Listeners for More Button ---
+            moreButton.addEventListener('click', toggleDropdown);
+
+            // إغلاق القائمة المنسدلة عند الضغط في أي مكان خارجها
+            document.addEventListener('click', (e) => {
+                const isClickInsideModal = callModal.contains(e.target) && callModal.classList.contains('open');
+                
+                // أغلق القائمة المنسدلة إذا لم يكن النقر داخلها أو على زر الثلاث نقاط
+                if (!moreDropdown.contains(e.target) && !moreButton.contains(e.target) && !isClickInsideModal) {
+                    closeDropdown();
+                }
+            });
+
+
+            // --- (بقية الدوال والمنطق لـ ChatBot / Rate Limiting / Rendering / Flow تبقى كما هي) ---
+            
+            // Utility functions (Simplified for brevity)
             const random = (arr) => arr[Math.floor(Math.random() * arr.length)];
             const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
             const getTimeString = (timestamp = null) => {
@@ -277,136 +305,31 @@
                 return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
             };
             
-            function generateRandom10DigitString() {
-                return String(Math.floor(1000000000 + Math.random() * 9000000000));
-            }
-
-            // --- AVATAR GENERATION FUNCTION (Unchanged) ---
-            // Function to generate a stable random number based on a seed
-            function mulberry32(seed) {
-                return function() {
-                    seed = seed + 0x6D2B79F5 | 0;
-                    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
-                    t = t + Math.imul(t ^ t >>> 7, 61 | t);
-                    return ((t ^ t >>> 14) >>> 0) / 4294967296;
-                }
-            }
-            
-            let avatarSeeds = {}; // Store seeds for consistent avatars
-
+            function mulberry32(seed) { return function() { seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t); return ((t ^ t >>> 14) >>> 0) / 4294967296; } }
+            let avatarSeeds = {}; 
             function generateRealisticAvatarUrl(userId) {
-                if (!avatarSeeds[userId]) {
-                    // Generate a new seed if it doesn't exist for this userId
-                    avatarSeeds[userId] = Math.floor(Math.random() * 1000000); 
-                }
+                if (!avatarSeeds[userId]) { avatarSeeds[userId] = Math.floor(Math.random() * 1000000); }
                 const seed = avatarSeeds[userId];
-                const rand = mulberry32(seed); // Create a seeded random number generator
-                
+                const rand = mulberry32(seed); 
                 const gender = rand() < 0.5 ? 'men' : 'women';
-                const imageNum = Math.floor(rand() * 99); // Random number from 0-98 for RandomUser.me
+                const imageNum = Math.floor(rand() * 99); 
                 return `https://randomuser.me/api/portraits/thumb/${gender}/${imageNum}.jpg`;
             }
 
-            // --- USER DATA SETUP (Unchanged) ---
             let myId = localStorage.getItem('chat_user_id');
             if (!myId || !myId.startsWith('Client_')) {
                 myId = "Client_" + Math.floor(10000 + Math.random() * 90000); 
                 localStorage.setItem('chat_user_id', myId);
             }
-            
-            // توليد الصورة الرمزية الخاصة بي بناءً على الـ ID
             const MY_ID = myId; 
             const MY_AVATAR = generateRealisticAvatarUrl(MY_ID);
-
-            // --- VIRTUAL USER AND DIALOGUE DATA (Unchanged) ---
+            
             const VIRTUAL_USERS = [
-                { id: "user_4837", name: "Alice" },
-                { id: "client_9102", name: "Bob" },
-                { id: "member_3321", name: "Charlie" },
-                { id: "guest_0045", name: "Dana" },
-                { id: "alpha_7618", name: "Eve" },
-                { id: "beta_5229", name: "Frank" },
+                { id: "user_4837", name: "Alice" }, { id: "client_9102", name: "Bob" }, { id: "member_3321", name: "Charlie" }, 
+                { id: "guest_0045", name: "Dana" }, { id: "alpha_7618", name: "Eve" }, { id: "beta_5229", name: "Frank" }, 
                 { id: "gamma_3110", name: "Grace" },
             ];
-            
-            // --- STATEMENTS (Unchanged) ---
-            
-            const SHORT_STATEMENTS = [
-                "Hi", "Hello", "ok", "Good morning", "Morning!", "👍", "I see.", 
-                "thanks", "got it", "yup", "alright", "yeah", "Nice", "cool", "I agree"
-            ];
 
-            const LONG_STATEMENTS = [
-                "I finally got my withdrawal. Super fast! Less than %s%.",
-                "Is anyone else using the new %s% feature?",
-                "It's great that this bot is %s% legit and not another scam.",
-                "Just confirmed a successful deposit. Took exactly %s% minutes.",
-                "The current flash duration is unbelievably low, around %s%.",
-                "I was skeptical about the %s%, but it truly works.",
-                "This is the most reliable %s% bot I've found.",
-            ];
-
-            const FLOW_PARTS = {
-                TERMS: [
-                    "anti-scam protocol", "withdrawal speed", "deposit processing time",
-                    "liquidity pool connection", "flash completion rate", "TRC20 fee structure",
-                ],
-                VALUES: [
-                    "3 seconds", "5 minutes", "99%", "0.5 seconds", "2 hours",
-                ],
-            };
-            
-            // Keyword-based replies (Unchanged)
-            const REPLY_MAP = {
-                "withdraw": [
-                    "Withdrawals are instant now. They take around %s% once processed.",
-                    "It's absolutely reliable. I cashout %s% daily.",
-                    "I checked the wallet transactions; totally legit withdrawal proof.",
-                ],
-                "cashout": [
-                     "Withdrawals are instant now. They take around %s% once processed.",
-                    "It's absolutely reliable. I cashout %s% daily.",
-                ],
-                "money": [
-                     "Withdrawals are instant now. They take around %s% once processed.",
-                    "It's absolutely reliable. I cashout %s% daily.",
-                ],
-                "legit": [
-                    "The bot is 100% legit. No KYC required and the process is transparent.",
-                    "It's verified. You can check the transaction history.",
-                    "It's not a scam; this is the real deal with instant %s%!",
-                ],
-                "scam": [
-                    "It's not a scam; this is the real deal with instant %s%!",
-                    "They implemented a strong %s% to prevent any fraud.",
-                    "Absolutely safe. I've been using it for weeks without issues.",
-                ],
-                "safe": [
-                    "Absolutely safe. I've been using it for weeks without issues.",
-                    "The security measures on the %s% are really high.",
-                ],
-                "deposit": [
-                    "The deposit window is %s% short. Funds are active almost immediately.",
-                    "Funding takes %s% to reflect, depending on network congestion.",
-                    "I recommend starting with a small %s% test deposit.",
-                ],
-                "fast": [
-                    "It's incredibly fast! The whole process, including %s%, takes less than 3 minutes.",
-                    "The speed is key. You won't find a faster %s% bot.",
-                ],
-                "quick": [
-                    "It's incredibly fast! The whole process, including %s%, takes less than 3 minutes.",
-                    "The speed is key. You won't find a faster %s% bot.",
-                ],
-                "default": [
-                    "I think that's covered in the %s% FAQ.",
-                    "Are you asking about the %s% or the duration?",
-                    "Generally, the bot is highly reliable in all %s% aspects.",
-                ]
-            };
-
-            // --- RATE LIMIT & PERSISTENCE (Unchanged) ---
-            
             function loadRateLimit() {
                 const savedCount = localStorage.getItem(RATE_LIMIT_COUNT_KEY);
                 const savedStartTime = localStorage.getItem(RATE_LIMIT_START_TIME_KEY);
@@ -414,25 +337,20 @@
                 if (savedStartTime !== null) rateLimitStartTime = parseInt(savedStartTime, 10);
                 resetMessageLimit(false); 
             }
-
             function saveRateLimit() {
                 localStorage.setItem(RATE_LIMIT_COUNT_KEY, messageCount.toString());
                 if (rateLimitStartTime) localStorage.setItem(RATE_LIMIT_START_TIME_KEY, rateLimitStartTime.toString());
                 else localStorage.removeItem(RATE_LIMIT_START_TIME_KEY);
             }
-
             function resetMessageLimit(forceCheck = true) {
                 if (rateLimitStartTime) {
                     const timeElapsed = Date.now() - rateLimitStartTime;
                     if (timeElapsed >= RESET_TIME_MS) {
-                        messageCount = 0;
-                        rateLimitStartTime = null;
-                        saveRateLimit(); 
+                        messageCount = 0; rateLimitStartTime = null; saveRateLimit(); 
                     }
                 }
                 if (forceCheck) checkMessageLimit();
             }
-            
             function checkMessageLimit() {
                 resetMessageLimit(false); 
                 const remaining = MAX_MESSAGES - messageCount;
@@ -448,42 +366,24 @@
                 }
                 sendButton.disabled = remaining <= 0 || messageInput.value.trim() === "";
             }
-
-            function saveMessages() {
-                try {
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(messageHistory));
-                } catch (e) {
-                    console.error("Error saving message history to localStorage", e);
-                }
-            }
-
+            function saveMessages() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(messageHistory)); } catch (e) { console.error("Error saving message history", e); } }
             function loadMessages() {
                 const savedData = localStorage.getItem(STORAGE_KEY);
                 if (savedData) {
                     try {
                         messageHistory = JSON.parse(savedData);
-                        messageHistory.forEach(msg => {
-                            renderMessage(msg, true);
-                        });
+                        messageHistory.forEach(msg => { renderMessage(msg, true); });
                         messagesWindow.scrollTop = messagesWindow.scrollHeight;
-                    } catch (e) {
-                        console.error("Error parsing saved message history", e);
-                        messageHistory = []; 
-                    }
+                    } catch (e) { messageHistory = []; }
                 }
             }
 
-            // --- CORE RENDERING FUNCTION (Unchanged) ---
             function renderMessage(messageData, isHistoryLoad = false) {
                 const { username, messageText, avatarHash, isMine, timestamp } = messageData; 
-                
                 const timeString = getTimeString(timestamp);
-                // استخدام الـ avatarHash (الذي هو الـ ID) لتوليد صورة واقعية
                 const avatarUrl = isMine ? MY_AVATAR : generateRealisticAvatarUrl(avatarHash);
-                
                 const messageRow = document.createElement('div');
                 messageRow.classList.add('message-row', isMine ? 'my-message-row' : 'other-message-row');
-
                 messageRow.innerHTML = `
                     <img src="${avatarUrl}" alt="${username} Avatar" class="message-avatar ${isMine ? 'hidden' : ''}">
                     <div class="message-bubble ios-shadow">
@@ -494,130 +394,78 @@
                 `;
                 messagesWindow.appendChild(messageRow);
                 messagesWindow.scrollTop = messagesWindow.scrollHeight;
-
-                if (!isHistoryLoad) {
-                    messageHistory.push(messageData);
-                    saveMessages();
-                }
+                if (!isHistoryLoad) { messageHistory.push(messageData); saveMessages(); }
             }
-
-
-            // --- MESSAGE GENERATION FUNCTIONS (Unchanged) ---
+            
+            const SHORT_STATEMENTS = ["Hi", "Hello", "ok", "Good morning", "Morning!", "👍", "I see.", "thanks", "got it", "yup", "alright", "yeah", "Nice", "cool", "I agree"];
+            const LONG_STATEMENTS = ["I finally got my withdrawal. Super fast! Less than %s%.", "Is anyone else using the new %s% feature?", "It's great that this bot is %s% legit and not another scam.", "Just confirmed a successful deposit. Took exactly %s% minutes.", "The current flash duration is unbelievably low, around %s%.", "I was skeptical about the %s%, but it truly works.", "This is the most reliable %s% bot I've found.",];
+            const FLOW_PARTS = { TERMS: ["anti-scam protocol", "withdrawal speed", "deposit processing time", "liquidity pool connection", "flash completion rate", "TRC20 fee structure",], VALUES: ["3 seconds", "5 minutes", "99%", "0.5 seconds", "2 hours",], };
+            const REPLY_MAP = {
+                "withdraw": ["Withdrawals are instant now. They take around %s% once processed.", "It's absolutely reliable. I cashout %s% daily.", "I checked the wallet transactions; totally legit withdrawal proof.",],
+                "cashout": ["Withdrawals are instant now. They take around %s% once processed.", "It's absolutely reliable. I cashout %s% daily.",],
+                "money": ["Withdrawals are instant now. They take around %s% once processed.", "It's absolutely reliable. I cashout %s% daily.",],
+                "legit": ["The bot is 100% legit. No KYC required and the process is transparent.", "It's verified. You can check the transaction history.", "It's not a scam; this is the real deal with instant %s%!",],
+                "scam": ["It's not a scam; this is the real deal with instant %s%!", "They implemented a strong %s% to prevent any fraud.", "Absolutely safe. I've been using it for weeks without issues.",],
+                "safe": ["Absolutely safe. I've been using it for weeks without issues.", "The security measures on the %s% are really high.",],
+                "deposit": ["The deposit window is %s% short. Funds are active almost immediately.", "Funding takes %s% to reflect, depending on network congestion.", "I recommend starting with a small %s% test deposit.",],
+                "fast": ["It's incredibly fast! The whole process, including %s%, takes less than 3 minutes.", "The speed is key. You won't find a faster %s% bot.",],
+                "quick": ["It's incredibly fast! The whole process, including %s%, takes less than 3 minutes.", "The speed is key. You won't find a faster %s% bot.",],
+                "default": ["I think that's covered in the %s% FAQ.", "Are you asking about the %s% or the duration?", "Generally, the bot is highly reliable in all %s% aspects.",]
+            };
             
             let lastUserIndex = -1;
             function generateFlowMessage() {
                 let userIndex;
-                do {
-                    userIndex = randomInt(0, VIRTUAL_USERS.length - 1);
-                } while (userIndex === lastUserIndex);
+                do { userIndex = randomInt(0, VIRTUAL_USERS.length - 1); } while (userIndex === lastUserIndex);
                 lastUserIndex = userIndex;
-                
                 const user = VIRTUAL_USERS[userIndex];
-                const randomUserId = user.name; // استخدم الاسم الحقيقي هنا
-                
-                // --- منطق تقليل التكرار: 80% رسائل طويلة، 20% رسائل قصيرة ---
+                const randomUserId = user.name;
                 const useShortMessage = Math.random() < 0.20; 
                 let messageText;
-
                 if (useShortMessage) {
                     messageText = random(SHORT_STATEMENTS);
                 } else {
                     messageText = random(LONG_STATEMENTS);
-                    
-                    // يتم استبدال العلامات المئوية في الرسائل الطويلة فقط
                     messageText = messageText.replace(/%s%/, random(FLOW_PARTS.TERMS));
                     messageText = messageText.replace(/%s%/, random(FLOW_PARTS.VALUES));
                 }
-                
-                const messageData = {
-                    username: randomUserId, 
-                    messageText: messageText,
-                    avatarHash: user.id, // استخدم الـ ID كـ Hash لتوليد الصورة
-                    isMine: false,
-                    timestamp: Date.now()
-                };
-                
+                const messageData = { username: randomUserId, messageText: messageText, avatarHash: user.id, isMine: false, timestamp: Date.now() };
                 renderMessage(messageData);
             }
 
             function generateCustomReply(userMessage) {
                 const normalizedMessage = userMessage.toLowerCase();
                 let replyKey = 'default';
-
-                for (const key in REPLY_MAP) {
-                    if (normalizedMessage.includes(key)) {
-                        replyKey = key;
-                        break;
-                    }
-                }
-
+                for (const key in REPLY_MAP) { if (normalizedMessage.includes(key)) { replyKey = key; break; } }
                 let userIndex;
-                do {
-                    userIndex = randomInt(0, VIRTUAL_USERS.length - 1);
-                } while (userIndex === lastUserIndex);
-                
+                do { userIndex = randomInt(0, VIRTUAL_USERS.length - 1); } while (userIndex === lastUserIndex);
                 const user = VIRTUAL_USERS[userIndex];
                 const randomUserId = user.name;
-
                 let replyText = random(REPLY_MAP[replyKey]);
                 replyText = replyText.replace(/%s%/, random(FLOW_PARTS.TERMS));
                 replyText = replyText.replace(/%s%/, random(FLOW_PARTS.VALUES));
-
-                const messageData = {
-                    username: randomUserId, 
-                    messageText: replyText,
-                    avatarHash: user.id, 
-                    isMine: false,
-                    timestamp: Date.now() 
-                };
-
+                const messageData = { username: randomUserId, messageText: replyText, avatarHash: user.id, isMine: false, timestamp: Date.now() };
                 const FIXED_REPLY_DELAY = 7000; 
-                setTimeout(() => {
-                    renderMessage(messageData);
-                }, FIXED_REPLY_DELAY);
-            }
-
-            // --- MESSAGE INJECTION LOOP (Unchanged) ---
-            const MESSAGE_RATE_MS = 6000; 
-            let flowInterval = null; 
-
-            function startFlow() {
-                if (!flowInterval) {
-                    flowInterval = setInterval(generateFlowMessage, MESSAGE_RATE_MS);
-                }
+                setTimeout(() => { renderMessage(messageData); }, FIXED_REPLY_DELAY);
             }
             
-            // --- Send Message Functionality (Unchanged) ---
+            const MESSAGE_RATE_MS = 6000; 
+            let flowInterval = null; 
+            function startFlow() { if (!flowInterval) { flowInterval = setInterval(generateFlowMessage, MESSAGE_RATE_MS); } }
 
             function sendMessage() {
                 const messageText = messageInput.value.trim();
-
                 resetMessageLimit(false); 
-
                 if (messageText && messageCount < MAX_MESSAGES) {
-                    
                     playSound(sendSound); 
-                    
-                    const messageData = {
-                        username: MY_ID, 
-                        messageText: messageText,
-                        avatarHash: MY_ID, // استخدام الـ ID مباشرة كـ Hash لتوليد الصورة
-                        isMine: true,
-                        timestamp: Date.now()
-                    };
+                    const messageData = { username: MY_ID, messageText: messageText, avatarHash: MY_ID, isMine: true, timestamp: Date.now() };
                     renderMessage(messageData);
-                    
                     generateCustomReply(messageText);
-
                     messageCount++;
-                    if (messageCount === 1) { 
-                        rateLimitStartTime = Date.now();
-                    }
+                    if (messageCount === 1) { rateLimitStartTime = Date.now(); }
                     saveRateLimit(); 
-                    
                     checkMessageLimit();
                     messageInput.value = '';
-                    
                 } else if (messageCount >= MAX_MESSAGES) {
                     alert('You have reached the maximum message limit (2) per 10 minutes.');
                 }
@@ -631,21 +479,16 @@
                 }
             });
 
-            // --- Header & Footer Interaction (Unchanged) ---
+            // --- Header & Footer Interaction ---
             backButton.addEventListener('click', function(e) {
                 e.preventDefault(); 
                 playSound(backSound); 
-                setTimeout(() => {
-                    window.location.href = backButton.getAttribute('href'); 
-                }, 150); 
+                setTimeout(() => { window.location.href = backButton.getAttribute('href'); }, 150); 
             });
 
-
-            // --- Active Users Count & Initialization (Unchanged) ---
             const MIN_USERS = 890;
             const MAX_USERS = 3000;
             const MAX_CHANGE = 5; 
-
             function updateActiveCount() {
                 let currentCount = parseInt(activeCountElement.textContent) || MIN_USERS;
                 const change = Math.floor(Math.random() * (MAX_CHANGE * 2 + 1)) - MAX_CHANGE; 
