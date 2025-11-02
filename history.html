@@ -11,15 +11,15 @@
         /* iOS Dark Mode Colors (System Colors) */
         :root {
             --primary-bg: #000000; 
-            --secondary-bg: #1C1C1E; /* لا يزال يستخدم للخلفيات الأخرى مثل البطاقات */
+            --secondary-bg: #1C1C1E; /* يستخدم لخلفيات البطاقات والقوائم */
             --tertiary-bg: #2C2C2E; 
             --text-color: #FFFFFF;
             --secondary-text-color: #98989a; 
-            --accent-color: #0A84FF; 
-            --success-color: #34C759; 
-            --failure-color: #FF3B30; 
-            --pending-color: #FFD60A; 
-            --border-color: #38383a;
+            --accent-color: #0A84FF; /* اللون الأزرق المميز */
+            --success-color: #34C759; /* الأخضر للنجاح */
+            --failure-color: #FF3B30; /* الأحمر للفشل */
+            --pending-color: #FFD60A; /* الأصفر (أو البرتقالي) للمُعلق */
+            --border-color: #38383a; /* لون الخطوط الفاصلة */
         }
         
         body {
@@ -27,7 +27,7 @@
             background-color: var(--primary-bg);
             color: var(--text-color);
             margin: 0;
-            padding-top: 1rem;
+            padding-top: 1rem; 
         }
         
         .container {
@@ -40,28 +40,27 @@
             flex-direction: column;
         }
 
-        /* Header - أصبح شفافاً بالكامل */
+        /* Header Styling */
         .page-header {
-            background-color: transparent; /* إزالة اللون الرمادي العلوي */
-            border-bottom: none; /* إزالة الخط الفاصل */
+            background-color: transparent; 
+            border-bottom: none; 
             padding: 1.5rem 1rem 0.75rem; 
             display: flex;
             justify-content: space-between;
             align-items: center;
-            position: relative; /* لضمان ظهور المحتوى فوق الخلفية */
-            z-index: 10; /* لضمان أن عناصر الهيدر تكون مرئية فوق أي محتوى آخر */
-       padding-top: 1rem;
+            position: relative; 
+            z-index: 10; 
+            padding-top: 1rem;
         }
         
         /* List Group Styling */
         .list-group {
             background-color: var(--secondary-bg);
             border-radius: 10px;
-            /* تم تعديل الهامش ليلتصق بالجزء العلوي بسبب إزالة البوردر والخلفية من الهيدر */
-            margin: 1rem 1rem 1rem; /* تم إزالة الهامش العلوي ليلتصق بالحد العلوي للصفحة */
+            margin: 1rem 1rem 1rem; 
             overflow: hidden;
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
-            flex-shrink: 0; /* لا يسمح له بالانكماش */
+            flex-shrink: 0; 
         }
 
         .list-item {
@@ -76,7 +75,7 @@
         .list-item:last-child { border-bottom: none; }
         .list-item:hover { background-color: var(--tertiary-bg); }
 
-        /* Status Icons (Simplified for brevity) */
+        /* Status Icons */
         .status-icon { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem; flex-shrink: 0; }
         .status-icon.success { background-color: var(--success-color); }
         .status-icon.failure { background-color: var(--failure-color); }
@@ -86,7 +85,7 @@
         .amount { font-size: 1.1rem; font-weight: 600; }
         .type-date { font-size: 0.8rem; color: var(--secondary-text-color); }
         
-        /* Message for No Transactions */
+        /* Message for No Transactions (Empty State) */
         .empty-state {
             flex-grow: 1;
             display: flex;
@@ -95,8 +94,8 @@
             align-items: center;
             padding-bottom: 15vh; 
             text-align: center;
-            /* لتوفير مساحة للهيدر الشفاف */
-            padding-top: 5rem; 
+            /* 💡 التعديل هنا: تم تغيير القيمة لتصبح 1rem */
+            padding-top: 1rem; 
         }
         
         .empty-state-icon {
@@ -110,13 +109,14 @@
             font-weight: 500;
         }
 
-
-        /* Modal Styles (Simplified for brevity) */
+        /* Modal Styles */
         .detail-modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: rgba(0, 0, 0, 0.7); display: none; justify-content: center;
             align-items: flex-end; z-index: 2000;
         }
+        .detail-modal-overlay.open { display: flex; } 
+
         .detail-modal-content {
             background-color: var(--secondary-bg); border-top-left-radius: 16px; border-top-right-radius: 16px;
             padding: 1.5rem 1rem; width: 100%; max-width: 30rem; box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.5);
@@ -129,7 +129,7 @@
         .modal-value.success-text { color: var(--success-color); font-weight: 600; }
         .modal-value.failure-text { color: var(--failure-color); font-weight: 600; }
         .modal-value.pending-text { color: var(--pending-color); font-weight: 600; }
-        .modal-close-button { background-color: var(--accent-color); color: white; padding: 0.75rem; border-radius: 8px; font-weight: 600; width: 100%; margin-top: 1.5rem; cursor: pointer; }
+        .modal-close-button { background-color: var(--accent-color); color: white; padding: 0.75rem; border-radius: 8px; font-weight: 600; width: 100%; margin-top: 1.5rem; cursor: pointer; border: none; }
 
     </style>
     
@@ -162,6 +162,8 @@
         </div>
     </div>
 
+    <audio id="bipSound" src="bip.mp3" preload="auto"></audio>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -170,22 +172,24 @@
             const modalTitle = document.getElementById('modalTitle');
             const modalRows = document.getElementById('modalRows');
             const modalCloseButton = document.getElementById('modalCloseButton');
+            const bipSound = document.getElementById('bipSound');
             
             // --- Dummy Data ---
-            // لكي تظهر رسالة "No transactions yet"، قم بترك هذه المصفوفة فارغة:
+            // الحالة الحالية: مصفوفة فارغة لعرض رسالة "No transactions yet"
             const dummyTransactions = []; 
             
             /*
-            // يمكنك استخدام هذه البيانات التجريبية لاختبار ظهور القائمة:
+            // يمكنك إلغاء التعليق على البيانات التالية لاختبار ظهور القائمة:
             const dummyTransactions = [
                 { id: 'TXN87654321', type: 'Withdrawal', amount: '-1500.00', currency: 'USD', status: 'success', date: 'Oct 30, 2025', fee: '15.00', receiver: 'Wallet 0xabc...123', },
                 { id: 'TXN12345678', type: 'Deposit', amount: '+500.00', currency: 'USD', status: 'success', date: 'Oct 29, 2025', fee: '0.00', sender: 'Exchange X', },
                 { id: 'TXN99887766', type: 'Withdrawal', amount: '-50.00', currency: 'EUR', status: 'pending', date: 'Oct 29, 2025', fee: '5.00', receiver: 'Bank Account Y', },
+                { id: 'TXN44332211', type: 'Deposit', amount: '+20.50', currency: 'USD', status: 'failure', date: 'Oct 28, 2025', fee: '0.00', sender: 'Friend Z', },
             ];
             */
             
 
-            // --- Utility Functions for Icons (Unchanged) ---
+            // --- Utility Functions for Icons ---
             const getStatusIcon = (status) => {
                 switch (status) {
                     case 'success': return `<div class="status-icon success"><svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></div>`;
@@ -204,12 +208,12 @@
                 }
             };
 
-            // --- Rendering Function (Modified) ---
+            // --- Rendering Function ---
             const renderTransactions = (transactions) => {
-                transactionsContent.innerHTML = ''; // Clear previous content
+                transactionsContent.innerHTML = ''; 
 
                 if (transactions.length === 0) {
-                    // 1. عرض حالة "لا توجد تحويلات"
+                    // حالة "لا توجد تحويلات"
                     const emptyState = document.createElement('div');
                     emptyState.classList.add('empty-state');
                     emptyState.innerHTML = `
@@ -221,7 +225,7 @@
                     transactionsContent.appendChild(emptyState);
                     
                 } else {
-                    // 2. عرض قائمة التحويلات
+                    // عرض قائمة التحويلات
                     const listGroup = document.createElement('div');
                     listGroup.classList.add('list-group');
 
@@ -230,7 +234,7 @@
                         listItem.classList.add('list-item');
                         listItem.dataset.txId = tx.id; 
 
-                        const amountText = tx.type === 'Withdrawal' 
+                        const amountText = tx.amount.startsWith('-')
                             ? `<span style="color: var(--failure-color);">${tx.amount} ${tx.currency}</span>`
                             : `<span style="color: var(--success-color);">${tx.amount} ${tx.currency}</span>`;
 
@@ -249,7 +253,7 @@
                     
                     transactionsContent.appendChild(listGroup);
                     
-                    // إضافة رسالة "Loading more" في نهاية القائمة
+                    // رسالة "Loading more"
                     transactionsContent.innerHTML += `
                         <div class="p-4 text-center text-sm" style="color: var(--secondary-text-color);">
                             Loading more transactions...
@@ -258,7 +262,7 @@
                 }
             };
             
-            // --- Modal Functions (Unchanged) ---
+            // --- Modal Functions ---
             const openModal = (tx) => {
                 modalTitle.textContent = `${tx.type} Details`;
                 
@@ -270,18 +274,26 @@
                     <div class="modal-row"><span class="modal-label">Fee</span><span class="modal-value">${tx.fee} ${tx.currency}</span></div>
                 `;
                 
-                if (tx.type === 'Withdrawal') {
+                if (tx.type === 'Withdrawal' && tx.receiver) {
                     modalHtml += `<div class="modal-row"><span class="modal-label">Receiver</span><span class="modal-value">${tx.receiver}</span></div>`;
-                } else if (tx.type === 'Deposit') {
+                } else if (tx.type === 'Deposit' && tx.sender) {
                     modalHtml += `<div class="modal-row"><span class="modal-label">Source</span><span class="modal-value">${tx.sender}</span></div>`;
                 }
                 
                 modalRows.innerHTML = modalHtml;
                 modalOverlay.classList.add('open');
+                document.body.style.overflow = 'hidden'; 
+                
+                // تشغيل صوت Bip
+                if (bipSound) {
+                     bipSound.currentTime = 0; 
+                     bipSound.play().catch(e => console.log('Bip sound play failed:', e));
+                }
             };
 
             const closeModal = () => {
                 modalOverlay.classList.remove('open');
+                document.body.style.overflow = ''; 
             };
 
             // --- Event Listeners ---
@@ -293,7 +305,7 @@
             });
 
             // --- Initialization ---
-            renderTransactions(dummyTransactions);
+            renderTransactions(dummyTransactions); 
         });
     </script>
 
