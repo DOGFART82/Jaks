@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Upload Screenshot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background-color: #000; /* خلفية سوداء */
+      position: relative;
+    }
+
+    .container {
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 15px;
+      padding: 30px;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 0 20px rgba(0, 150, 255, 0.3);
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+
+    h2 {
+      font-size: 22px;
+      margin-bottom: 20px;
+    }
+
+    .warning {
+      background: rgba(255, 0, 0, 0.2);
+      padding: 15px;
+      font-size: 14px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border-left: 4px solid red;
+    }
+
+    input[type="file"] {
+      display: block;
+      margin: 20px auto;
+      background: #1e1e1e;
+      padding: 10px;
+      border: 1px solid #00bfff;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    img.preview {
+      max-width: 100%;
+      margin: 15px 0;
+      border-radius: 8px;
+      box-shadow: 0 0 10px #00bfff;
+      display: none;
+    }
+
+    button {
+      background: #00bfff;
+      border: none;
+      padding: 12px;
+      width: 100%;
+      font-size: 16px;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:disabled {
+      background: #555;
+      cursor: not-allowed;
+    }
+
+    button:hover:enabled {
+      background: #0099cc;
+    }
+
+    .popup-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .popup-box {
+      background: #fff;
+      color: #000;
+      padding: 20px 30px;
+      border-radius: 10px;
+      font-size: 20px;
+      text-align: center;
+      animation: zoomIn 0.3s ease-out;
+    }
+
+    @keyframes zoomIn {
+      0% { transform: scale(0.5); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Upload Payment Screenshot</h2>
+    <div class="warning">
+      Warning: 5 fake screenshots will block this tool permanently!
+    </div>
+
+    <input type="file" id="screenshotInput" accept="image/*" />
+    <img id="previewImage" class="preview" alt="Preview" />
+    <button id="sendButton" onclick="sendScreenshot()" disabled>DONE</button>
+  </div>
+
+  <!-- Popup -->
+  <div id="popup" class="popup-overlay">
+    <div class="popup-box">ORDER SUBMITTED</div>
+  </div>
+
+  <script>
+    const botToken = "7575709803:AAEBxGl4NkOrCAvArk1cOLGTxIWcvv1d88w";
+    const chatId = "7739393558";
+
+    const fileInput = document.getElementById('screenshotInput');
+    const preview = document.getElementById('previewImage');
+    const sendButton = document.getElementById('sendButton');
+
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files[0];
+      if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+          sendButton.disabled = false;
+        };
+        reader.readAsDataURL(file);
+      } else {
+        preview.style.display = 'none';
+        sendButton.disabled = true;
+      }
+    });
+
+    async function sendScreenshot() {
+      const file = fileInput.files[0];
+      if (!file) return alert("Please select a screenshot first.");
+
+      const formData = new FormData();
+      formData.append("chat_id", chatId);
+      formData.append("photo", file);
+
+      try {
+        const res = await fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
+          method: "POST",
+          body: formData
+        });
+
+        if (!res.ok) throw new Error("Failed to send photo");
+
+        const messageText = `New screenshot received.\nTime: ${new Date().toLocaleString()}\nDevice: ${navigator.userAgent}`;
+
+        const messageResponse = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ chat_id: chatId, text: messageText })
+        });
+
+        if (!messageResponse.ok) throw new Error("Failed to send message");
+
+        document.getElementById('popup').style.display = 'flex';
+        setTimeout(() => location.reload(), 300000);
+      } catch (error) {
+        alert("Error: " + error.message);
+      }
+    }
+  </script>
+</body>
+</html>

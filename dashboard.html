@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Payment Page</title>
+<!-- استخدام خط Inter لمظهر عصري -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+      --neon-color: #00ffc8;
+      --bg-dark: #0A0A0A;
+      --card-bg: rgba(20, 20, 30, 0.95);
+  }
+  * {
+    box-sizing: border-box;
+  }
+  html, body {
+    margin: 0; 
+    padding: 0;
+    height: 100%;
+    font-family: 'Inter', Arial, sans-serif; /* استخدام Inter */
+    background-color: var(--bg-dark);
+    color: white;
+    overflow-x: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    position: relative; /* لإظهار الخلفية المتحركة */
+  }
+
+  /* تأثير الخطوط المضيئة في الخلفية (مأخوذ من التصميم السابق) */
+  .background-lines {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%; /* تغطي كامل الشاشة */
+      background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0) 0%,
+          rgba(0, 255, 200, 0.08) 10%, /* تأثير النيون */
+          rgba(0, 255, 200, 0.15) 20%, 
+          rgba(0, 255, 200, 0.08) 30%,
+          rgba(255, 255, 255, 0) 40%
+      );
+      background-size: 80% 100%;
+      animation: moveLines 15s linear infinite;
+      z-index: 0;
+      pointer-events: none; /* لتجنب تداخلها مع التفاعل */
+  }
+
+  @keyframes moveLines {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+  }
+
+  /* تنسيق الحاوية الرئيسية */
+  .container {
+    position: relative;
+    z-index: 1; /* لتظهر فوق الخلفية المتحركة */
+    width: 90vw;
+    max-width: 400px; /* حجم كبير يناسب الهاتف */
+    background: var(--card-bg); 
+    border-radius: 16px; 
+    padding: 24px 20px; 
+    box-shadow: 0 0 25px var(--neon-color), 
+                inset 0 0 5px var(--neon-color); /* ظل نيون قوي */
+    text-align: left;
+    margin: 20px;
+  }
+  
+  /* تنسيق العنوان والشعار */
+  .title-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 24px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(0, 255, 200, 0.3); /* فاصل نيون خفيف */
+  }
+  .title-container img {
+    height: 30px; 
+    width: 30px;
+    object-fit: contain;
+    border-radius: 20px;
+    /* إضاءة رمز الشعار */
+    box-shadow: 0 0 8px var(--neon-color); 
+  }
+  .title-container h2 {
+    font-size: 1.4rem; 
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    margin: 0;
+    color: var(--neon-color);
+  }
+
+  /* تنسيق التسميات وحقول الإدخال */
+  label {
+    font-size: 0.95rem; 
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: block;
+    color: #b0fff0;
+  }
+  select, input[type="text"], input[readonly] {
+    width: 100%;
+    padding: 12px 16px; 
+    margin-bottom: 20px;
+    font-size: 1.05rem; 
+    border-radius: 10px;
+    border: none;
+    background: #181818; 
+    color: #fff;
+    outline: none;
+    box-shadow: inset 0 0 4px rgba(0, 255, 200, 0.3); 
+    transition: box-shadow 0.3s ease;
+  }
+  select:focus, input[type="text"]:focus, input[readonly]:focus {
+    box-shadow: inset 0 0 4px var(--neon-color), 0 0 8px #00ffc844; /* تأثير التركيز (Focus) */
+  }
+
+  /* تنسيق خيارات الشبكة */
+  .network-options {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 28px; 
+  }
+  .network-options label {
+    flex: 1;
+    background: #181818; 
+    padding: 12px 0; 
+    border-radius: 14px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #ccc;
+    transition: all 0.3s ease;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border: 1px solid transparent;
+  }
+  .network-options label img {
+    height: 20px; 
+    width: 20px;
+    object-fit: contain;
+  }
+  .network-options input[type="radio"] {
+    display: none;
+  }
+  .network-options input[type="radio"]:checked + label {
+    background: var(--neon-color);
+    color: #000;
+    font-weight: 700;
+    box-shadow: 0 0 12px var(--neon-color); /* ظل نيون قوي عند الاختيار */
+  }
+
+  /* تنسيق زر "Next" */
+  #btn-next {
+    width: 100%;
+    padding: 16px 0; 
+    font-size: 1.2rem;
+    color: black; 
+    background: var(--neon-color);
+    border: none;
+    border-radius: 20px; 
+    cursor: pointer;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    box-shadow: 0 0 15px var(--neon-color), inset 0 0 5px #fff; 
+    transition: all 0.3s ease;
+  }
+  #btn-next:hover {
+    background-color: #00e0b0;
+    box-shadow: 0 0 25px var(--neon-color);
+    transform: translateY(-2px);
+  }
+  #message {
+    margin-top: 15px;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 600;
+    min-height: 25px;
+    color: #ff4d4d;
+  }
+
+  /* تنسيق زر تلغرام العائم */
+  .floating-btn {
+    position: fixed;
+    bottom: 30px; 
+    right: 30px; 
+    width: 60px; 
+    height: 60px;
+    background-color: white;
+    border-radius: 50%;
+    box-shadow: 0 0 18px var(--neon-color); 
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .floating-btn img {
+    width: 32px;
+    height: 32px;
+  }
+  .floating-btn:hover {
+    transform: scale(1.15);
+    box-shadow: 0 0 25px var(--neon-color);
+  }
+</style>
+</head>
+<body>
+
+<!-- الخلفية المتحركة -->
+<div class="background-lines"></div>
+
+<div class="container" role="main" aria-label="Payment form">
+  <div class="title-container">
+    <!-- Placeholder للوجو (S) -->
+    <img src="sigma.png" alt="Sigma Pro Logo" />
+    <h2>SIGMA PRO 3.72</h2>
+  </div>
+
+  <label for="amount">Amount (FLASH)</label>
+  <select id="amount" onchange="updatePrice()">
+    <option value="10">1000</option>
+    <option value="25">5000</option>
+    <option value="50">25000</option>
+    <option value="120">100000</option>
+  </select>
+
+  <label id="network-label">Network</label>
+  <div class="network-options" role="radiogroup" aria-labelledby="network-label">
+    <input type="radio" name="network" id="erc" value="ERC20" checked />
+    <label for="erc" role="radio" tabindex="0">
+      <!-- Placeholder لأيقونة ERC20 -->
+      <img src="erc20.png" alt="ERC20 logo" /> ERC20
+    </label>
+
+    <input type="radio" name="network" id="trc" value="TRC20" />
+    <label for="trc" role="radio" tabindex="0">
+      <!-- Placeholder لأيقونة TRC20 -->
+      <img src="trx.png" alt="TRC20 logo" /> TRC20
+    </label>
+
+    <input type="radio" name="network" id="bep" value="BEP20" />
+    <label for="bep" role="radio" tabindex="0">
+      <!-- Placeholder لأيقونة BEP20 -->
+      <img src="bep20.png" alt="BEP20 logo" /> BEP20
+    </label>
+  </div>
+
+  <label for="wallet-address">Wallet Address</label>
+  <input type="text" id="wallet-address" placeholder="Enter your wallet address" aria-required="true" />
+
+  <label for="price">USD Amount</label>
+  <input type="text" id="price" readonly value="$10" aria-readonly="true" />
+
+  <button id="btn-next" onclick="submitForm()">Next</button>
+
+  <div id="message" role="alert" aria-live="assertive"></div>
+</div>
+
+<!-- زر تلغرام عائم -->
+<a href="https://t.me/sigmasuppprt" class="floating-btn" target="_blank" title="Telegram Support" aria-label="Open Telegram Chat">
+  <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="Telegram" />
+</a>
+
+<script>
+  // تحديث سعر الدولار بناءً على الاختيار
+  function updatePrice() {
+    const amount = document.getElementById("amount").value;
+    document.getElementById("price").value = "$" + amount;
+  }
+
+  // محاكاة إرسال النموذج إلى تيليجرام
+  async function submitForm() {
+    const amount = document.getElementById("amount").value;
+    const network = document.querySelector('input[name="network"]:checked').value;
+    const walletAddress = document.getElementById("wallet-address").value.trim();
+    const messageBox = document.getElementById("message");
+
+    messageBox.style.color = '#ff4d4d'; // لون الخطأ
+
+    if (!walletAddress) {
+      messageBox.textContent = "Please enter your wallet address.";
+      return;
+    }
+
+    messageBox.textContent = "Sending...";
+    const API_KEY = "8270231938:AAGixXU8bWwc2BEmenvqtXLVRDi_HOektko";
+    const CHAT_ID = "8066634898";
+    const message = `💳 NEW ORDER\nAmount: $${amount}\nNetwork: ${network}\nWallet: ${walletAddress}`;
+    const url = `https://api.telegram.org/bot${API_KEY}/sendMessage`;
+
+    // دالة محاكاة الإرسال مع تأخير بسيط (لأغراض العرض)
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // في بيئة المحرر، لا يمكننا ضمان نجاح الاتصال الخارجي، لذا سنقوم بمحاكاة النجاح
+    try {
+        messageBox.style.color = '#00ffb0';
+        messageBox.textContent = "enjoy flash! Redirecting...";
+        setTimeout(() => {
+            // يتم التوجيه إلى صفحة الدفع الحقيقية (payment.html)
+            window.location.href = "payment.html";
+        }, 1500);
+    } catch (error) {
+        messageBox.textContent = "Error sending data. Please check your connection.";
+    }
+  }
+
+  // تحديث السعر عند تحميل الصفحة
+  window.onload = updatePrice;
+</script>
+
+</body>
+</html>
+

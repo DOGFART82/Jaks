@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Invite Friends</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    background: #000;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #00ff99;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-image: radial-gradient(circle at center, #001a11 0%, #000 100%);
+  }
+  .container {
+    background: rgba(0, 255, 153, 0.05);
+    border: 1px solid #00ff99;
+    box-shadow: 0 0 20px #00ff99aa;
+    border-radius: 20px;
+    padding: 30px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    backdrop-filter: blur(8px);
+  }
+  h2 {
+    margin-bottom: 10px;
+    color: #00ff99;
+  }
+  input {
+    width: 100%;
+    padding: 12px;
+    margin: 12px 0;
+    border-radius: 12px;
+    border: 1px solid #00ff99;
+    background: #001a11;
+    color: #00ff99;
+    font-size: 16px;
+    outline: none;
+  }
+  button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border-radius: 12px;
+    border: none;
+    background-color: #00ff99;
+    color: #000;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  button:hover {
+    background-color: #00cc7a;
+  }
+  .copy-box {
+    background: #001a11;
+    padding: 12px;
+    border-radius: 12px;
+    margin-top: 20px;
+    border: 1px dashed #00ff99;
+    font-size: 18px;
+    cursor: pointer;
+    user-select: all;
+    transition: background 0.3s;
+  }
+  .copy-box:hover {
+    background: #002d1f;
+  }
+  .note {
+    font-size: 13px;
+    margin-top: 15px;
+    color: #88ffcc;
+  }
+  .telegram-link {
+    display: block;
+    margin-top: 10px;
+    margin-bottom: 15px;
+    color: #00ff99;
+    font-weight: bold;
+    text-decoration: none;
+  }
+  .telegram-link:hover {
+    text-decoration: underline;
+  }
+  /* Modal styles */
+  #modalOverlay {
+    display: none;
+    position: fixed;
+    top:0; left:0; right:0; bottom:0;
+    background: rgba(0,0,0,0.7);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  #modalBox {
+    background: #001a11;
+    border: 2px solid #00ff99;
+    border-radius: 20px;
+    padding: 30px 40px;
+    max-width: 300px;
+    text-align: center;
+    color: #00ff99;
+    font-size: 20px;
+    font-weight: bold;
+  }
+  #modalClose {
+    margin-top: 20px;
+    padding: 10px 25px;
+    border: none;
+    background-color: #00ff99;
+    color: #000;
+    font-weight: bold;
+    border-radius: 12px;
+    cursor: pointer;
+  }
+  #modalClose:hover {
+    background-color: #00cc7a;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h2>ENTER FRIEND CODE</h2>
+    <input type="text" id="friendCode" placeholder="Friend's Code" />
+
+    <button id="doneBtn">Done</button>
+
+    <h2>INVITE FRIENDS</h2>
+    <a href="https://t.me/USDTFLASHER362bot" class="telegram-link" target="_blank">https://t.me/USDTFLASHER362bot</a>
+
+    <div class="copy-box" id="inviteCode" onclick="copyCode()">Loading...</div>
+
+    <div class="note">* You have to score 10 referral code At least 3 of your invited friends must purchase one of the paid offers</div>
+  </div>
+
+  <!-- Modal -->
+  <div id="modalOverlay">
+    <div id="modalBox">
+      <div id="modalMessage">Message here</div>
+      <button id="modalClose">Close</button>
+    </div>
+  </div>
+
+<script>
+  function generateRandomCode() {
+    return Math.floor(10000000 + Math.random() * 90000000).toString();
+  }
+
+  const inviteElement = document.getElementById("inviteCode");
+  let storedCode = localStorage.getItem("inviteCode");
+  if (!storedCode) {
+    storedCode = generateRandomCode();
+    localStorage.setItem("inviteCode", storedCode);
+  }
+  inviteElement.innerText = storedCode;
+
+  function copyCode() {
+    navigator.clipboard.writeText(storedCode).then(() => {
+      alert("Code copied: " + storedCode);
+    });
+  }
+
+  const modalOverlay = document.getElementById("modalOverlay");
+  const modalMessage = document.getElementById("modalMessage");
+  const modalClose = document.getElementById("modalClose");
+
+  modalClose.addEventListener("click", () => {
+    modalOverlay.style.display = "none";
+  });
+
+  document.getElementById("doneBtn").addEventListener("click", () => {
+    const hasTried = localStorage.getItem("hasTriedFriendCode");
+    if (hasTried) {
+      modalMessage.textContent = "Rejected: Only one attempt allowed.";
+    } else {
+      localStorage.setItem("hasTriedFriendCode", "true");
+      modalMessage.textContent = "Accepted! Keep inviting more friends to earn rewards.";
+      document.getElementById("friendCode").value = "";
+    }
+    modalOverlay.style.display = "flex";
+  });
+</script>
+</body>
+</html>
