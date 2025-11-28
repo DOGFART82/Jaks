@@ -1,161 +1,110 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome Screen | Register</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        /* Apply a modern font */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #000000;
-        }
-        /* Ensure the screen fits the viewport exactly (100vh) without scrolling. */
-        .mobile-container {
-            /* استخدام 100vh بشكل عام */
-            height: 100vh; 
-            box-sizing: border-box; 
-        }
-        /* Video styling for 1:1 aspect ratio */
-        video {
-            aspect-ratio: 1 / 1;
-            width: 100%;
-            max-width: 300px;
-            object-fit: cover;
-            border-radius: 1rem;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Update Features</title>
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        background: #000;
+        font-family: "Poppins", sans-serif;
+        color: #fff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    .card {
+        background: rgba(25, 25, 25, 0.8);
+        padding: 35px 45px;
+        border-radius: 18px;
+        border: 1px solid #0ff;
+        box-shadow: 0 0 25px rgba(0, 255, 255, 0.3);
+        backdrop-filter: blur(10px);
+        width: 350px;
+        animation: fadeIn 1.3s;
+    }
+
+    h2 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        font-size: 26px;
+        text-align: center;
+        color: #0ff;
+        text-shadow: 0 0 10px #0ff;
+    }
+
+    .maintenance {
+        background: rgba(0, 255, 255, 0.1);
+        border-left: 3px solid #0ff;
+        padding: 12px 15px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        font-size: 15px;
+        line-height: 1.6;
+        text-shadow: 0 0 4px #0ff;
+    }
+
+    ul {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+    }
+
+    li {
+        margin-bottom: 12px;
+        font-size: 16px;
+        line-height: 1.6;
+        position: relative;
+        padding-left: 25px;
+    }
+
+    li::before {
+        content: "•";
+        position: absolute;
+        left: 0;
+        color: #0ff;
+        text-shadow: 0 0 6px #0ff;
+    }
+
+    /* أيقونة الهدية */
+    .gift {
+        font-size: 18px;
+        margin-right: 5px;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+</style>
 </head>
-<body class="bg-black text-white antialiased">
-    
-    <audio id="bipSound">
-        <source src="bip.mp3" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio>
 
-    <div class="mobile-container flex flex-col items-center justify-between p-6 md:p-12 max-w-sm mx-auto">
-        
-        <div class="flex flex-col items-center w-full my-auto">
-            
-            <div class="w-full max-w-xs mb-8 overflow-hidden rounded-2xl shadow-xl shadow-fuchsia-900/10">
-                <video id="spaceVideo" autoplay loop muted playsinline poster="https://placehold.co/300x300/18181b/ffffff?text=Video+Loading+..." class="w-full h-auto">
-                    <source src="space.mp4" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-            </div>
+<body>
 
-            <h1 class="text-5xl font-extrabold mb-2 text-center">
-                Welcome
-            </h1>
-            <p class="text-lg text-white/60 text-center">
-                Your journey starts here
-            </p>
-        </div>
+<div class="card">
+    <h2>Update Features</h2>
 
-        <div class="w-full mt-8">
-            <p id="error-message" class="text-red-400 text-sm mb-3 hidden text-center"></p>
-
-            <input type="text" id="username" placeholder="Username (Alphanumeric only)"
-                   class="w-full bg-neutral-900 text-white placeholder-neutral-500 border border-neutral-700 p-4 rounded-xl mb-4 text-left focus:outline-none focus:ring-2 focus:ring-fuchsia-500 transition duration-150"
-                   maxlength="20">
-
-            <button id="registerButton"
-                    class="w-full bg-white text-black font-semibold py-4 rounded-xl hover:bg-neutral-200 transition duration-150 shadow-lg shadow-white/20">
-                Register
-            </button>
-            
-            <div class="mt-8 text-xs text-white/50 text-center leading-relaxed">
-                By clicking "Register," you agree to our
-                <a href="#" class="text-white/80 underline font-medium hover:text-white transition duration-150">Terms of Service</a>
-                and
-                <a href="#" class="text-white/80 underline font-medium hover:text-white transition duration-150">Privacy Policy</a>.
-            </div>
-        </div>
+    <div class="maintenance">
+        <strong>Server under maintenance</strong><br>
+        We will be back online at <strong>14:00 PM</strong>.
     </div>
 
-    <script type="text/javascript">
-        // 🟢 كود خاص بـ Telegram Mini App
-        if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
-            // 1. التأكد من جاهزية الـ Web App
-            Telegram.WebApp.ready();
-            
-            // 2. طلب وضع ملء الشاشة لإخفاء الأشرطة
-            // لاحظ: قد لا يكون هذا الإجراء متاحًا/فعالاً في كل ظروف متصفح تيليجرام، ولكنه هو الطريقة الرسمية.
-            if (Telegram.WebApp.isExpanded) {
-                // إذا كان قابلاً للتوسيع، اطلب التوسيع أولاً (وهذا يتم تلقائيًا في بعض الحالات)
-                Telegram.WebApp.expand(); 
-            }
-            if (Telegram.WebApp.requestFullscreen) {
-                 Telegram.WebApp.requestFullscreen();
-            } else {
-                 console.warn("requestFullscreen is not available in this Telegram WebApp version.");
-            }
-        } else {
-            console.log("Not running inside Telegram WebApp or SDK not loaded.");
-        }
-        // ------------------------------------
+    <ul>
+        <li>We added a dedicated application for the tool.</li>
+        <li>Fixed phone-ban issues during the payment process.</li>
+        <li>Improved UI with a lighter interface and faster sending speed.</li>
+        
+        <li>
+            <span class="gift">🎁</span>
+            <strong>FREE 10 FLASH USDT for 5 Referrals</strong>
+        </li>
+    </ul>
+</div>
 
-        // Get the audio element once
-        const bipSound = document.getElementById('bipSound');
-        document.getElementById('registerButton').addEventListener('click', handleRegister);
-
-        function handleRegister() {
-            // تشغيل صوت الـ bip قبل أي معالجة
-            // يجب إعادة تحميل/إعادة تعيين الوقت لجعل الصوت يعمل في كل مرة يتم النقر فيها.
-            try {
-                bipSound.currentTime = 0; // إعادة تعيين الصوت للبداية
-                bipSound.play();
-            } catch (e) {
-                console.error("Could not play sound:", e);
-                // الاستمرار في العملية حتى لو فشل تشغيل الصوت
-            }
-            
-            const usernameInput = document.getElementById('username');
-            const username = usernameInput.value.trim();
-            const errorMsg = document.getElementById('error-message');
-            const registerButton = document.getElementById('registerButton');
-
-            // 1. Input Validation (English letters and numbers only)
-            const regex = /^[a-zA-Z0-9]+$/; 
-
-            if (username.length === 0) {
-                errorMsg.textContent = 'Please enter a username.';
-                errorMsg.classList.remove('hidden');
-                return;
-            }
-            
-            if (!regex.test(username)) {
-                errorMsg.textContent = 'Username must contain English letters and numbers only.';
-                errorMsg.classList.remove('hidden');
-                return;
-            }
-
-            // Clear previous error message
-            errorMsg.classList.add('hidden');
-            
-            // Disable button during storage/redirect
-            registerButton.disabled = true; 
-            registerButton.textContent = 'Processing...';
-
-            // 2. Save Username to localStorage (as explicitly requested)
-            try {
-                localStorage.setItem('registeredUsername', username);
-                console.log("Username saved to localStorage:", username);
-
-                // 3. Redirect to main.html
-                window.location.href = 'main2.html';
-                
-            } catch (error) {
-                console.error("Error saving username to localStorage:", error);
-                errorMsg.textContent = `Registration failed: Could not save username locally.`;
-                errorMsg.classList.remove('hidden');
-                registerButton.disabled = false; // Re-enable button on failure
-                registerButton.textContent = 'Register';
-            }
-        }
-    </script>
 </body>
 </html>
